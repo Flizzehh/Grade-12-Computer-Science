@@ -55,7 +55,13 @@ class Tile:
 		self.cameFrom = None
 		
 	def AddBuilding(self,building):
-		self.building = building
+		if (building.prefab.buildingType == "Bulldozer"):
+			self.building = None
+		else:
+			self.building = building
+			
+		from city import city
+		city.CalculateRCI()
 		
 	def CalculateTilePosition(self):
 		self.position = (self.indexPos[0]*tm.tileSize+camera.position[0]*tm.tileSize,self.indexPos[1]*tm.tileSize+camera.position[1]*tm.tileSize,tm.tileSize,tm.tileSize)
@@ -180,10 +186,8 @@ class TileMap:
 						
 	def Update(self):
 	
-		from ui import ui
-		from buildings import Building
-		from buildings import buildingPrefabs
-		from city import city
+		from ui import ui		
+		from buildings import buildingPrefabs	
 		
 		visibleTiles = 0
 		
@@ -205,12 +209,9 @@ class TileMap:
 						tileColour = (round(tileColour[0]),round(tileColour[1]/2),round(tileColour[2]/2))
 					if (tile.prefab.tileType == "Grass" and ui.mouseDown and ui.mouseOverUI == False and tile.building == None):
 						if (ui.selectedBuilding.buildingType == "City Hall" or ((ui.selectedBuilding.buildingType == "Road" and tile in self.validRoadTiles) or tile in self.validBuildTiles)):
-							newBuilding = Building(ui.selectedBuilding,tile)
-							tile.AddBuilding(newBuilding)
-							self.CalculateLandValue()
-							self.FindValidRoadTiles()
-							self.FindValidBuildingSpots()
-							city.bank -= newBuilding.prefab.cost
+							self.BuildBuilding(tile,ui.selectedBuilding)
+					if  (ui.selectedBuilding.buildingType == "Bulldozer" and ui.mouseDown and ui.mouseOverUI == False):
+						self.BuildBuilding(tile,ui.selectedBuilding)
 								
 				if  (tile in tm.validRoadTiles and ui.selectedBuilding != None and ui.selectedBuilding.buildingType == "Road"):
 					tileColour = (tileColour[0]/2,tileColour[1],tileColour[2]/2)
@@ -243,10 +244,21 @@ class TileMap:
 					if (ui.mouseOverTile == tile and tile.building.prefab.buildingType == "Residential"):
 						for citizen in tile.building.population:
 							if (citizen.jobBuilding != None):
-								lines.append(Line((255,255,255),(tile.position[0]+self.tileSize/2,tile.position[1]+self.tileSize/2),(citizen.jobBuilding.tile.position[0]+self.tileSize/2,citizen.jobBuilding.tile.position[1]+self.tileSize/2),round(self.tileSize * 0.05)))
+								lines.append(Line(citizen.jobBuilding.prefab.colour,(tile.position[0]+self.tileSize/2,tile.position[1]+self.tileSize/2),(citizen.jobBuilding.tile.position[0]+self.tileSize/2,citizen.jobBuilding.tile.position[1]+self.tileSize/2),round(self.tileSize * 0.05)))
 		for line in lines:
 			pygame.draw.line(self.tileSurface,line.colour,line.startPosition,line.endPosition,line.thickness)
-			
+	
+	def BuildBuilding(self,tile,building):
+		from buildings import Building
+		from city import city
+		
+		newBuilding = Building(building,tile)
+		tile.AddBuilding(newBuilding)
+		self.CalculateLandValue()
+		self.FindValidRoadTiles()
+		self.FindValidBuildingSpots()
+		city.bank -= building.cost
+	
 	def UpdateTilePosition(self):
 		for tile in self.tiles:
 			tile.CalculateTilePosition()

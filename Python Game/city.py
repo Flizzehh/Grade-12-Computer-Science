@@ -9,6 +9,10 @@ class City:
 		self.cityHall = None
 		
 		self.bankTimer = 0
+		
+		self.resDemand = 1
+		self.comDemand = 1
+		self.indDemand = 1
 	
 	def Update(self):
 	
@@ -40,6 +44,47 @@ class City:
 	
 	def CalculateBank(self):
 		self.bank += (self.income - self.expense)
+		
+	def CalculateRCI(self):
+	
+		from tiles import tm
+	
+		employedCitizens = 0
+		unemploymentRate = 0
+		
+		averageLandValue = 0
+		
+		numBuildings = 0
+		numRes = 0
+		numCom = 0
+		numInd = 0
+		
+		for tile in tm.tiles:
+			if (tile.building != None):
+				employedCitizens += tile.building.employed
+				numBuildings += 1
+				if (tile.building.prefab.buildingType == "Residential"):
+					averageLandValue += tile.building.landValue
+					numRes += 1
+				elif (tile.building.prefab.buildingType == "Commercial"):
+					numCom += 1
+				elif (tile.building.prefab.buildingType == "Industrial"):
+					numInd += 1
+		if (numBuildings != 0 and self.population != 0):
+			averageLandValue /= numBuildings
+			unemploymentRate = 1 - (employedCitizens / self.population)
+			self.resDemand = (unemploymentRate + averageLandValue) / 2
+			
+		if (numRes != 0):
+			inverseResComRatio = 1 - (numCom / numRes)
+			self.comDemand = (unemploymentRate + inverseResComRatio) / 2
+			
+		comIndRatio = 0
+		if (numCom != 0):
+			comIndRatio = numInd / numCom
+			if (comIndRatio != 0):
+				self.indDemand = unemploymentRate / comIndRatio
+		
 
 def Awake():
 	global city

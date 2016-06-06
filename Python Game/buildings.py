@@ -67,6 +67,8 @@ class Building:
 				else:
 					self.populationTimer = 0
 					self.population.append(Citizen(self))
+					from city import city
+					city.CalculateRCI()
 				
 			self.employed = 0
 			for citizen in self.population:

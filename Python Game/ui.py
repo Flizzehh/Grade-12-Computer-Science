@@ -13,6 +13,7 @@ class UI:
 		self.mousePos = pygame.mouse.get_pos()
 	
 		self.panels = []
+		self.updatePanels = []
 		self.buttons = []
 		self.texts = []
 		self.updateTexts = []
@@ -48,9 +49,26 @@ class UI:
 		global buildingTextPosition
 		buildingTextPosition = (buildingPanelPosition[0]+5,buildingPanelPosition[1])
 		
-		self.AddPanel(Panel(buildingPanelPosition,cityPanelSize,(255,255,255),5,(200,200,200)))
+		global rciPanelPosition
+		rciPanelPosition = (cityPanelPosition[0],cityPanelPosition[1]+cityPanelSize[1]+15)
+		global rciTextPosition
+		rciTextPosition = (rciPanelPosition[0]+5,rciPanelPosition[1])
 		
+		self.AddPanel(Panel(rciPanelPosition,(cityPanelSize[0],cityPanelSize[1]+10),(255,255,255),5,(200,200,200)))
 		
+		self.AddText(Text(rciTextPosition,cityPanelSize,"Demand","verdana",14,(50,50,50)))
+		self.AddText(Text((rciTextPosition[0],rciTextPosition[1]+15),cityPanelSize,"Residential","verdana",12,(50,50,50)))
+		self.AddText(Text((rciTextPosition[0],rciTextPosition[1]+45),cityPanelSize,"Commercial","verdana",12,(50,50,50)))
+		self.AddText(Text((rciTextPosition[0],rciTextPosition[1]+75),cityPanelSize,"Industrial","verdana",12,(50,50,50)))
+		
+		global datePanelPosition
+		datePanelPosition = (rciPanelPosition[0],rciPanelPosition[1]+cityPanelSize[1]+25)
+		global dateTextPosition
+		dateTextPosition = (datePanelPosition[0]+5,datePanelPosition[1])
+		
+		self.AddPanel(Panel(datePanelPosition,(cityPanelSize[0],cityPanelSize[1]-35),(255,255,255),5,(200,200,200)))
+		
+		self.AddText(Text(dateTextPosition,cityPanelSize,"Date","verdana",14,(50,50,50)))
 		
 		# Building panel
 		from buildings import buildingPrefabs
@@ -59,7 +77,7 @@ class UI:
 		buildingButtonSize = (100,35)
 		buildingPanelSize = (5+(buildingButtonSize[0]+5)*buildingButtonNum,buildingButtonSize[1]+10)
 		
-		buildingPanelRect = (screen.width/2-buildingPanelSize[0]/2,screen.height-buildingPanelSize[1]-5,buildingPanelSize[0],buildingPanelSize[1])
+		buildingPanelRect = (screen.width/2-buildingPanelSize[0]/2,screen.height-buildingPanelSize[1]-10,buildingPanelSize[0],buildingPanelSize[1])
 		self.AddPanel(Panel((buildingPanelRect[0],buildingPanelRect[1]),(buildingPanelRect[2],buildingPanelRect[3]),(255,255,255),5,(200,200,200)))
 		
 		for index in range(buildingButtonNum):
@@ -83,11 +101,12 @@ class UI:
 		
 		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+50),cityPanelSize,"$" + str(round(city.bank)),"verdana",12,(50,50,200)))
 		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+65),cityPanelSize,"+$" + str(round(city.income)),"verdana",12,(50,200,50)))
-		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+80),cityPanelSize,"-$" + str(round(city.expense)),"verdana",12,(200,50,50)))
+		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+80),cityPanelSize,"-$" + str(round(city.expense)),"verdana",12,(200,50,50)))	
 		
 		if (self.mouseOverTile != None and self.mouseOverTile.building != None and self.mouseOverTile.building.prefab.buildingType != "Road"):
 			building = self.mouseOverTile.building
-			
+			self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]),(255,255,255),5,(200,200,200)))
+			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,building.prefab.buildingType,"verdana",14,(50,50,50)))
 			if (building.prefab.buildingType == "Residential"):
 				self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Population","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+45),cityPanelSize,"Value","verdana",14,(50,50,50)))
@@ -96,14 +115,28 @@ class UI:
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+60),cityPanelSize,"$" + str(round(building.landValue)),"verdana",12,(50,200,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+75),cityPanelSize,"$" + str(round(building.prefab.maintenanceBase)),"verdana",12,(200,50,50)))
 			elif (building.prefab.buildingType != "Road"):
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Employed","verdana",12,(50,50,200)))
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,"$" + str(round(building.prefab.maintenanceBase)),"verdana",12,(200,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Employees","verdana",12,(50,50,200)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+30),cityPanelSize,"-$" + str(round(building.prefab.maintenanceBase)),"verdana",12,(200,50,50)))
 		else:
-			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Mouse not over","verdana",10,(200,50,50)))
-			self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,"a building.","verdana",10,(200,50,50)))
+			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Mouse over a building for more information.","verdana",10,(50,50,50)))
+			
+		from buildings import buildingPrefabs
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+30),cityPanelSize,str(round(city.resDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Residential").colour))
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+60),cityPanelSize,str(round(city.comDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Commercial").colour))
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+90),cityPanelSize,str(round(city.indDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Industrial").colour))
+		
 		from times import time
-		#self.AddUpdateText(Text((screen.width-30,0),(0,0),str(round(1/time.deltaTime)),"verdana",12,(255,255,255)))
-		self.AddUpdateText(Text((screen.width-30,0),(0,0),str(time.clock.get_fps()),"verdana",12,(50,50,50)))
+		self.AddUpdateText(Text((screen.width-20,0),(0,0),str(round(time.clock.get_fps())),"verdana",12,(50,50,50)))
+		
+		self.AddUpdateText(Text((dateTextPosition[0],dateTextPosition[1]+15),cityPanelSize,str(time.day) + self.AddS(" Day",time.day),"verdana",12,(50,50,50)))
+		self.AddUpdateText(Text((dateTextPosition[0],dateTextPosition[1]+30),cityPanelSize,str(time.month) + self.AddS(" Month",time.month),"verdana",12,(50,50,50)))
+		self.AddUpdateText(Text((dateTextPosition[0],dateTextPosition[1]+45),cityPanelSize,str(time.year) + self.AddS(" Year",time.year),"verdana",12,(50,50,50)))
+		
+	def AddS(self,string,value):
+		if (value != 1):
+			return string + "s"
+		else:
+			return string
 		
 	def AddPanel(self,panel):
 		self.panels.append(panel)
@@ -117,8 +150,12 @@ class UI:
 	def AddUpdateText(self,text):
 		self.updateTexts.append(text)
 		
+	def AddUpdatePanel(self,panel):
+		self.updatePanels.append(panel)
+		
 	def Update(self):
 		
+		self.updatePanels.clear()
 		self.updateTexts.clear()
 		self.AddUIUpdate()
 		
@@ -127,13 +164,10 @@ class UI:
 		self.mouseOverUI = False
 	
 		for panel in self.panels:
-			if (panel.borderThickness > 0):
-				pygame.draw.rect(self.uiSurface,panel.borderColour,(panel.borderPosition)+(panel.borderSize))
+			self.DrawPanel(panel)
 				
-			pygame.draw.rect(self.uiSurface,panel.colour,(panel.position)+(panel.size))
-			
-			if (self.MouseWithinBounds((panel.position)+(panel.size))):
-				self.mouseOverUI = True
+		for panel in self.updatePanels:
+			self.DrawPanel(panel)
 			
 		for button in self.buttons:
 				
@@ -172,15 +206,27 @@ class UI:
 				self.mouseOverUI = True
 				
 		for text in self.texts:
-			self.uiSurface.blit(text.textObject,text.position)
+			self.DrawText(text)
 			
 		for text in self.updateTexts:
-			self.uiSurface.blit(text.textObject,text.position)
+			self.DrawText(text)
 			
 	def MouseWithinBounds(self,bounds):
 		if (self.mousePos[0] >= bounds[0] and self.mousePos[0] < bounds[2]+bounds[0] and self.mousePos[1] >= bounds[1] and self.mousePos[1] < bounds[3]+bounds[1]):
 			return True
 		return False
+		
+	def DrawPanel(self,panel):
+		if (panel.borderThickness > 0):
+				pygame.draw.rect(self.uiSurface,panel.borderColour,(panel.borderPosition)+(panel.borderSize))
+			
+		pygame.draw.rect(self.uiSurface,panel.colour,(panel.position)+(panel.size))
+		
+		if (self.MouseWithinBounds((panel.position)+(panel.size))):
+			self.mouseOverUI = True
+			
+	def DrawText(self,text):
+		self.uiSurface.blit(text.textObject,text.position)
 
 class Panel:
 	def __init__(self,position,size,colour,borderThickness,borderColour):

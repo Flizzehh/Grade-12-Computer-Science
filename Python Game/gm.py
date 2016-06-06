@@ -42,7 +42,7 @@ def Quit():
 	sys.exit()
 
 def DrawBackground():
-	pygame.draw.rect(gameSurface, (25,25,25), (0,0,ui.screen.width,ui.screen.height))
+	pygame.draw.rect(gameSurface, (100,100,100), (0,0,ui.screen.width,ui.screen.height))
 	
 def CalculatePointDistance(pointA,pointB):
 	point = (pointB[0]-pointA[0],pointB[1]-pointA[1])
