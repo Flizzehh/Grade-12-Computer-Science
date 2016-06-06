@@ -373,7 +373,7 @@ def Awake():
 	camera = Camera()
 
 	global tm
-	tm = TileMap(50,100)
+	tm = TileMap(50,128)
 	tm.GenerateTileMap()
 	
 	camera.CenterCamera()

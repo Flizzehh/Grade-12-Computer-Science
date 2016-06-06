@@ -3,6 +3,14 @@ from pygame.locals import *
 
 ''' BUILDING PREFABS '''
 
+class BuildingGroup:
+	def __init__(self,groupName):
+		self.groupName = groupName
+		self.buildings = []
+		
+	def AddPrefab(self,prefab):
+		self.buildings.append(prefab)
+
 class BuildingPrefab:
 	def __init__(self,buildingType,colour,cost,maintenanceBase,maintenanceModifier,maxPopulationModifer,landValueModifier):
 		self.buildingType = buildingType
