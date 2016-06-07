@@ -31,6 +31,8 @@ def GetInput(event):
 	else:
 		ui.mouseDown = False
 	if (pygame.mouse.get_pressed()[2]):
+		if (ui.selectedBuilding == None):
+			ui.selectedGroup = None
 		ui.selectedBuilding = None
 		
 def SmoothCamera():

@@ -1,4 +1,4 @@
-import times, pygame, random
+import times, pygame, random, math
 from pygame.locals import *
 
 ''' BUILDING PREFABS '''
@@ -10,10 +10,17 @@ class BuildingGroups:
 	def AddGroup(self,group):
 		self.groups.append(group)
 		
-	def FindGroupByName(self,name):
+	def FindGroupFromName(self,name):
 		for group in self.groups:
 			if (group.groupName == name):
 				return group
+		return None
+		
+	def FindPrefabFromName(self,name):
+		for group in self.groups:
+			for prefab in group.buildings:
+				if (prefab.buildingType == name):
+					return prefab
 		return None
 
 class BuildingGroup:
@@ -31,14 +38,31 @@ class BuildingGroup:
 		return None
 
 class BuildingPrefab:
-	def __init__(self,lineData):
-		self.buildingType = lineData[0]
+	def __init__(self,lineData,group):
+		if ('\t' in lineData[0]):
+			self.buildingType = lineData[0].split('\t')[1]
+		else:
+			self.buildingType = lineData[0]
 		self.cost = cost = float(lineData[1])
 		self.maintenanceBase = float(lineData[2])
 		self.maintenanceModifier = float(lineData[3])
 		self.maxPopulation = float(lineData[4])
 		self.landValueModifier = float(lineData[5])
+		self.group = group
+		#self.spriteSheet = pygame.image.load("data/images/"+group.groupName+"/"+self.buildingType)
+		self.spriteSheet = pygame.image.load("data/images/City/City Hall.png")
+		self.sprites = []
+		self.SplitSprites()
 		
+	def SplitSprites(self):
+		spriteSheetSize = self.spriteSheet.get_rect().size
+		numSprites = (round(spriteSheetSize[0]/32),round(spriteSheetSize[1]/32))
+		for y in range(numSprites[1]):
+			for x in range(numSprites[0]):
+				sprite = pygame.Surface((32,32))
+				sprite.blit(self.spriteSheet,(0,0),(x*32,y*32,32,32))
+				self.sprites.append(sprite)
+				
 class BuildingPrefabs:
 	def __init__(self):
 		self.prefabs = []
@@ -50,7 +74,7 @@ class BuildingPrefabs:
 		for initialLine in file:
 			line = initialLine.split('\n')[0]
 			if ('\t' in list(line)):
-				prefab = BuildingPrefab(line.split('/'))
+				prefab = BuildingPrefab(line.split('/'),group)
 				group.AddPrefab(prefab)
 			else:
 				if (group != None):
@@ -81,6 +105,8 @@ class Building:
 		self.landValue = 1
 		
 		self.populationTimer = 0
+		
+		self.sprite = self.prefab.sprites[0]
 		
 		if (self.prefab.buildingType == "City Hall"):
 			from city import city
@@ -119,6 +145,14 @@ class Building:
 						
 					from tiles import tm
 					pygame.draw.rect(tm.tileSurface, citizen.jobBuilding.prefab.colour, (citizen.position[0]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,citizen.position[1]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,round(tm.tileSize/citizen.size),round(tm.tileSize/citizen.size)))
+		
+	def Bitmasking(self):
+		value = 0
+		for tileIndex in range(len(self.tile.surroundingTile[:4])):
+			if (tileIndex != None):
+				if (surroundingTile.building != None and surroundingTile.building.prefab == self.prefab):
+					value += math.pow(2,tileIndex)
+		self.sprite = self.prefab.sprites[value]
 		
 class Citizen:
 	def __init__(self,building):

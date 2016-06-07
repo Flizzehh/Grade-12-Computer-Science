@@ -35,12 +35,9 @@ class UI:
 	def AddUI(self):
 	
 		global cityPanelSize
-	
-		# City panel
 		cityPanelPosition = (10,10)
 		cityPanelSize = (100,100)
 		self.AddPanel(Panel(cityPanelPosition,cityPanelSize,(255,255,255),5,(200,200,200)))	
-		
 		global cityTextPosition
 		cityTextPosition = (cityPanelPosition[0]+5,cityPanelPosition[1])
 				
@@ -73,7 +70,6 @@ class UI:
 		
 		self.AddText(Text(dateTextPosition,cityPanelSize,"Date","verdana",14,(50,50,50)))
 		
-		# Building panel
 		from buildings import buildingGroups
 		
 		buildingButtonNum = len(buildingGroups.groups)
@@ -91,7 +87,9 @@ class UI:
 			buildingButtonTextPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1])
 			buttonText = Text(buildingButtonTextPosition,buildingButtonSize,group.groupName,"verdana",12,(200,200,200))
 			
-			self.AddButton(Button(buildingButtonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100),group,None))
+			button = Button(buildingButtonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100),group,None)
+			
+			self.AddButton(button)
 			
 			menuSize = (100,len(group.buildings)*50)
 			menuPanel = Panel((buildingButtonPosition[0],buildingButtonPosition[1]-menuSize[1]-5),(menuSize[0],menuSize[1]-15),(255,255,255),5,(200,200,200))
@@ -101,27 +99,9 @@ class UI:
 				buttonPosition = (buildingButtonPosition[0],buildingButtonPosition[1]-(50*(buildingIndex+1))-5)
 				buttonText = Text(buttonPosition,buildingButtonSize,building.buildingType,"verdana",12,(200,200,200))
 				menuButtons.append(Button(buttonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100),None,building))
-			self.menus.append(Menu(group,menuPanel,menuButtons))
-			
-			#previewButtonPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1]+15)
-			#previewButtonSize = (buildingButtonSize[0]-10,buildingButtonSize[1]-20)
-			
-			#self.AddButton(Button(previewButtonPosition,previewButtonSize,buttonText,buildingPrefab.colour,buildingPrefab.colour,buildingPrefab.colour))
-		
-		# for index in range(buildingButtonNum):
-		# 	buildingPrefab = buildingPrefabs.prefabs[index]
-			
-		# 	buildingButtonPosition = (buildingPanelRect[0] + 5 + (index * (buildingButtonSize[0] + 5)),buildingPanelRect[1]+5)
-			
-		# 	buildingButtonTextPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1])
-		# 	buttonText = Text(buildingButtonTextPosition,buildingButtonSize,buildingPrefab.buildingType,"verdana",12,(200,200,200))
-			
-		# 	self.AddButton(Button(buildingButtonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100)))
-			
-		# 	previewButtonPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1]+15)
-		# 	previewButtonSize = (buildingButtonSize[0]-10,buildingButtonSize[1]-20)
-			
-		# 	self.AddButton(Button(previewButtonPosition,previewButtonSize,buttonText,buildingPrefab.colour,buildingPrefab.colour,buildingPrefab.colour))
+			menu = Menu(group,menuPanel,menuButtons)
+			self.menus.append(menu)
+			button.menu = menu
 		
 	def AddUIUpdate(self):
 		from city import city
@@ -148,10 +128,9 @@ class UI:
 		else:
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Mouse over a building for more information.","verdana",10,(50,50,50)))
 			
-		# from buildings import buildingPrefabs
-		# self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+30),cityPanelSize,str(round(city.resDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Residential").colour))
-		# self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+60),cityPanelSize,str(round(city.comDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Commercial").colour))
-		# self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+90),cityPanelSize,str(round(city.indDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Industrial").colour))
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+30),cityPanelSize,str(round(city.resDemand,2) * 100) + "%","verdana",12,(0,150,0)))
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+60),cityPanelSize,str(round(city.comDemand,2) * 100) + "%","verdana",12,(0,0,150)))
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+90),cityPanelSize,str(round(city.indDemand,2) * 100) + "%","verdana",12,(255,127,0)))
 		
 		from times import time
 		self.AddUpdateText(Text((screen.width-20,0),(0,0),str(round(time.clock.get_fps())),"verdana",12,(50,50,50)))
@@ -202,16 +181,22 @@ class UI:
 			self.DrawPanel(panel)
 			
 		for button in self.buttons:
-			self.DrawButtons(button)
+			self.DrawButton(button)
 				
 		for button in self.updateButtons:
-			self.DrawButtons(button)	
+			self.DrawButton(button)	
 		
 		for text in self.texts:
 			self.DrawText(text)
 			
 		for text in self.updateTexts:
 			self.DrawText(text)
+			
+		for menu in self.menus:
+			if (menu.enabled):
+				self.DrawPanel(menu.panel)
+				for button in menu.buttons:
+					self.DrawButton(button)
 			
 	def MouseWithinBounds(self,bounds):
 		if (self.mousePos[0] >= bounds[0] and self.mousePos[0] < bounds[2]+bounds[0] and self.mousePos[1] >= bounds[1] and self.mousePos[1] < bounds[3]+bounds[1]):
@@ -230,25 +215,32 @@ class UI:
 	def DrawText(self,text):
 		self.uiSurface.blit(text.textObject,text.position)
 		
-	def DrawButtons(self,button):
-						
+	def DrawButton(self,button):
+		
+		if (button.menu != None and self.selectedGroup != button.group):
+			button.menu.enabled = False
+				
 		from buildings import buildingGroups
 			
 		buttonColour = button.normalColour
 
 		if (self.MouseWithinBounds((button.position)+(button.size)) and button.disabled == False):
 			buttonColour = button.hoverColour
+			
+			if (button.menu != None):
+				button.menu.enabled = True
+			
 			if (self.mouseDown):
 				
 				buttonColour = button.clickColour
 				
 				if (button.group != None):
 					self.selectedGroup = button.group
-					for menu in self.menus:
-						if (menu.id == button.group):
-							self.DrawPanel(menu.panel)
-							for button in menu.buttons:
-								self.AddUpdateButton(button)
+					if (button.menu != None):
+						button.menu.enabled = True
+						self.DrawPanel(button.menu.panel)
+						for button in button.menu.buttons:
+							self.AddUpdateButton(button)
 								
 				elif (button.building != None):
 					self.selectedBuilding = button.building
@@ -305,6 +297,7 @@ class Button:
 		
 		self.group = group
 		self.building = building	
+		self.menu = None
 
 class Text:
 	def __init__(self,position,size,text,font,fontSize,colour):
@@ -320,6 +313,7 @@ class Text:
 
 class Menu:
 	def __init__(self,id,panel,buttons):
+		self.enabled = False
 		self.id = id
 		self.panel = panel
 		self.buttons = buttons

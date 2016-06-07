@@ -209,6 +209,7 @@ class TileMap:
 						tileColour = (round(tileColour[0]),round(tileColour[1]/2),round(tileColour[2]/2))
 					if (tile.prefab.tileType == "Grass" and ui.mouseDown and ui.mouseOverUI == False and tile.building == None):
 						if (ui.selectedBuilding.buildingType == "City Hall" or ((ui.selectedBuilding.buildingType == "Road" and tile in self.validRoadTiles) or tile in self.validBuildTiles)):
+							
 							self.BuildBuilding(tile,ui.selectedBuilding)
 					if  (ui.selectedBuilding.buildingType == "Bulldozer" and ui.mouseDown and ui.mouseOverUI == False):
 						self.BuildBuilding(tile,ui.selectedBuilding)
@@ -239,12 +240,15 @@ class TileMap:
 								connectingRoadRect = (tile.position[0],tile.position[1]+self.tileSize/4,self.tileSize/2,self.tileSize/2)
 							pygame.draw.rect(self.tileSurface,buildingPrefabs.FindPrefabFromType("Road").colour,connectingRoadRect)
 							
-					pygame.draw.rect(self.tileSurface,tile.building.prefab.colour,buildingRect)
+					#pygame.draw.rect(self.tileSurface,tile.building.prefab.colour,buildingRect)
+					#tile.building.sprite.convert(self.tileSurface)
+					tile.building.sprite = pygame.transform.scale(tile.building.sprite,(round(self.tileSize/32) * self.tileSize,round(self.tileSize/32) * self.tileSize))
+					self.tileSurface.blit(tile.building.sprite,(tile.position[0],tile.position[1],self.tileSize,self.tileSize))
 					
 					if (ui.mouseOverTile == tile and tile.building.prefab.buildingType == "Residential"):
 						for citizen in tile.building.population:
 							if (citizen.jobBuilding != None):
-								lines.append(Line(citizen.jobBuilding.prefab.colour,(tile.position[0]+self.tileSize/2,tile.position[1]+self.tileSize/2),(citizen.jobBuilding.tile.position[0]+self.tileSize/2,citizen.jobBuilding.tile.position[1]+self.tileSize/2),round(self.tileSize * 0.05)))
+								lines.append(Line((255,255,255),(tile.position[0]+self.tileSize/2,tile.position[1]+self.tileSize/2),(citizen.jobBuilding.tile.position[0]+self.tileSize/2,citizen.jobBuilding.tile.position[1]+self.tileSize/2),round(self.tileSize * 0.05)))
 		for line in lines:
 			pygame.draw.line(self.tileSurface,line.colour,line.startPosition,line.endPosition,line.thickness)
 	
