@@ -15,8 +15,10 @@ class UI:
 		self.panels = []
 		self.updatePanels = []
 		self.buttons = []
+		self.updateButtons = []
 		self.texts = []
 		self.updateTexts = []
+		self.menus = []
 		
 		self.uiSurface = pygame.display.set_mode((screen.width,screen.height),pygame.FULLSCREEN)
 		
@@ -25,6 +27,7 @@ class UI:
 		self.mouseDown = False
 		self.mouseOverUI = False
 		
+		self.selectedGroup = None
 		self.selectedBuilding = None
 		
 		self.mouseOverTile = None
@@ -71,29 +74,54 @@ class UI:
 		self.AddText(Text(dateTextPosition,cityPanelSize,"Date","verdana",14,(50,50,50)))
 		
 		# Building panel
-		from buildings import buildingPrefabs
+		from buildings import buildingGroups
 		
-		buildingButtonNum = len(buildingPrefabs.prefabs)
+		buildingButtonNum = len(buildingGroups.groups)
 		buildingButtonSize = (100,35)
 		buildingPanelSize = (5+(buildingButtonSize[0]+5)*buildingButtonNum,buildingButtonSize[1]+10)
 		
 		buildingPanelRect = (screen.width/2-buildingPanelSize[0]/2,screen.height-buildingPanelSize[1]-10,buildingPanelSize[0],buildingPanelSize[1])
 		self.AddPanel(Panel((buildingPanelRect[0],buildingPanelRect[1]),(buildingPanelRect[2],buildingPanelRect[3]),(255,255,255),5,(200,200,200)))
 		
-		for index in range(buildingButtonNum):
-			buildingPrefab = buildingPrefabs.prefabs[index]
+		for groupIndex in range(buildingButtonNum):
+			group = buildingGroups.groups[groupIndex]
 			
-			buildingButtonPosition = (buildingPanelRect[0] + 5 + (index * (buildingButtonSize[0] + 5)),buildingPanelRect[1]+5)
+			buildingButtonPosition = (buildingPanelRect[0] + 5 + (groupIndex * (buildingButtonSize[0] + 5)),buildingPanelRect[1]+5)
 			
 			buildingButtonTextPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1])
-			buttonText = Text(buildingButtonTextPosition,buildingButtonSize,buildingPrefab.buildingType,"verdana",12,(200,200,200))
+			buttonText = Text(buildingButtonTextPosition,buildingButtonSize,group.groupName,"verdana",12,(200,200,200))
 			
-			self.AddButton(Button(buildingButtonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100)))
+			self.AddButton(Button(buildingButtonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100),group,None))
 			
-			previewButtonPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1]+15)
-			previewButtonSize = (buildingButtonSize[0]-10,buildingButtonSize[1]-20)
+			menuSize = (100,len(group.buildings)*50)
+			menuPanel = Panel((buildingButtonPosition[0],buildingButtonPosition[1]-menuSize[1]-5),(menuSize[0],menuSize[1]-15),(255,255,255),5,(200,200,200))
+			menuButtons = []
+			for buildingIndex in range(len(group.buildings)):
+				building = group.buildings[buildingIndex]
+				buttonPosition = (buildingButtonPosition[0],buildingButtonPosition[1]-(50*(buildingIndex+1))-5)
+				buttonText = Text(buttonPosition,buildingButtonSize,building.buildingType,"verdana",12,(200,200,200))
+				menuButtons.append(Button(buttonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100),None,building))
+			self.menus.append(Menu(group,menuPanel,menuButtons))
 			
-			self.AddButton(Button(previewButtonPosition,previewButtonSize,buttonText,buildingPrefab.colour,buildingPrefab.colour,buildingPrefab.colour))
+			#previewButtonPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1]+15)
+			#previewButtonSize = (buildingButtonSize[0]-10,buildingButtonSize[1]-20)
+			
+			#self.AddButton(Button(previewButtonPosition,previewButtonSize,buttonText,buildingPrefab.colour,buildingPrefab.colour,buildingPrefab.colour))
+		
+		# for index in range(buildingButtonNum):
+		# 	buildingPrefab = buildingPrefabs.prefabs[index]
+			
+		# 	buildingButtonPosition = (buildingPanelRect[0] + 5 + (index * (buildingButtonSize[0] + 5)),buildingPanelRect[1]+5)
+			
+		# 	buildingButtonTextPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1])
+		# 	buttonText = Text(buildingButtonTextPosition,buildingButtonSize,buildingPrefab.buildingType,"verdana",12,(200,200,200))
+			
+		# 	self.AddButton(Button(buildingButtonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100)))
+			
+		# 	previewButtonPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1]+15)
+		# 	previewButtonSize = (buildingButtonSize[0]-10,buildingButtonSize[1]-20)
+			
+		# 	self.AddButton(Button(previewButtonPosition,previewButtonSize,buttonText,buildingPrefab.colour,buildingPrefab.colour,buildingPrefab.colour))
 		
 	def AddUIUpdate(self):
 		from city import city
@@ -120,10 +148,10 @@ class UI:
 		else:
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Mouse over a building for more information.","verdana",10,(50,50,50)))
 			
-		from buildings import buildingPrefabs
-		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+30),cityPanelSize,str(round(city.resDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Residential").colour))
-		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+60),cityPanelSize,str(round(city.comDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Commercial").colour))
-		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+90),cityPanelSize,str(round(city.indDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Industrial").colour))
+		# from buildings import buildingPrefabs
+		# self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+30),cityPanelSize,str(round(city.resDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Residential").colour))
+		# self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+60),cityPanelSize,str(round(city.comDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Commercial").colour))
+		# self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+90),cityPanelSize,str(round(city.indDemand,2) * 100) + "%","verdana",12,buildingPrefabs.FindPrefabFromType("Industrial").colour))
 		
 		from times import time
 		self.AddUpdateText(Text((screen.width-20,0),(0,0),str(round(time.clock.get_fps())),"verdana",12,(50,50,50)))
@@ -153,10 +181,14 @@ class UI:
 	def AddUpdatePanel(self,panel):
 		self.updatePanels.append(panel)
 		
+	def AddUpdateButton(self,button):
+		self.updateButtons.append(button)
+		
 	def Update(self):
 		
 		self.updatePanels.clear()
 		self.updateTexts.clear()
+		self.updateButtons.clear()
 		self.AddUIUpdate()
 		
 		self.mousePos = pygame.mouse.get_pos()
@@ -170,41 +202,11 @@ class UI:
 			self.DrawPanel(panel)
 			
 		for button in self.buttons:
+			self.DrawButtons(button)
 				
-			from buildings import buildingPrefabs
-				
-			buttonColour = button.normalColour
-	
-			if (self.MouseWithinBounds((button.position)+(button.size)) and button.disabled == False):
-				buttonColour = button.hoverColour
-				if (self.mouseDown):
-					
-					buttonColour = button.clickColour
-					self.selectedBuilding = buildingPrefabs.FindPrefabFromType(button.text.text)
-					
-			from city import city
-			if (city.cityHall == None and button.text.text != "City Hall"):			
-				button.disabled = True
-			elif (city.cityHall != None):
-				if (button.text.text == "City Hall"):
-					button.disabled = True
-				else:
-					button.disabled = False
-					if (city.bank < buildingPrefabs.FindPrefabFromType(button.text.text).cost):
-						button.disabled = True
-					
-			if (button.disabled):
-				buttonColour = (button.normalColour[0]/2,button.normalColour[1]/2,button.normalColour[2]/2)
-				if (ui.selectedBuilding != None and ui.selectedBuilding.buildingType == button.text.text):
-					ui.selectedBuilding = None
-					
-			pygame.draw.rect(self.uiSurface,buttonColour,(button.position)+(button.size))
-			if (button.text != None):
-				self.uiSurface.blit(button.text.textObject,button.text.position)
-				
-			if (self.MouseWithinBounds((button.position)+(button.size))):
-				self.mouseOverUI = True
-				
+		for button in self.updateButtons:
+			self.DrawButtons(button)	
+		
 		for text in self.texts:
 			self.DrawText(text)
 			
@@ -227,6 +229,54 @@ class UI:
 			
 	def DrawText(self,text):
 		self.uiSurface.blit(text.textObject,text.position)
+		
+	def DrawButtons(self,button):
+						
+		from buildings import buildingGroups
+			
+		buttonColour = button.normalColour
+
+		if (self.MouseWithinBounds((button.position)+(button.size)) and button.disabled == False):
+			buttonColour = button.hoverColour
+			if (self.mouseDown):
+				
+				buttonColour = button.clickColour
+				
+				if (button.group != None):
+					self.selectedGroup = button.group
+					for menu in self.menus:
+						if (menu.id == button.group):
+							self.DrawPanel(menu.panel)
+							for button in menu.buttons:
+								self.AddUpdateButton(button)
+								
+				elif (button.building != None):
+					self.selectedBuilding = button.building
+				
+		from city import city
+		if (city.cityHall == None and ((button.group != None and button.group.groupName != "City") or (button.building != None and button.building.buildingType != "City Hall"))):			
+			button.disabled = True
+		elif (city.cityHall != None):
+			if ((button.group != None and button.group.groupName == "City") or (button.building != None and button.building.buildingType == "City Hall")):
+				button.disabled = True
+			else:
+				button.disabled = False
+				if (button.building != None and city.bank < button.building.cost):
+					button.disabled = True
+		
+		button.disabled = False
+		
+		if (button.disabled):
+			buttonColour = (button.normalColour[0]/2,button.normalColour[1]/2,button.normalColour[2]/2)
+			if (ui.selectedBuilding != None and ui.selectedBuilding.buildingType == button.text.text):
+				ui.selectedBuilding = None
+				
+		pygame.draw.rect(self.uiSurface,buttonColour,(button.position)+(button.size))
+		if (button.text != None):
+			self.uiSurface.blit(button.text.textObject,button.text.position)
+			
+		if (self.MouseWithinBounds((button.position)+(button.size))):
+			self.mouseOverUI = True
 
 class Panel:
 	def __init__(self,position,size,colour,borderThickness,borderColour):
@@ -241,7 +291,7 @@ class Panel:
 		self.borderColour = borderColour
 
 class Button:
-	def __init__(self,position,size,text,normalColour,hoverColour,clickColour):
+	def __init__(self,position,size,text,normalColour,hoverColour,clickColour,group,building):
 		self.position = position
 		self.size = size
 		
@@ -252,6 +302,9 @@ class Button:
 		self.clickColour = clickColour
 		
 		self.disabled = False
+		
+		self.group = group
+		self.building = building	
 
 class Text:
 	def __init__(self,position,size,text,font,fontSize,colour):
@@ -264,6 +317,12 @@ class Text:
 		self.colour = colour
 		
 		self.textObject = pygame.font.SysFont(self.font,self.fontSize).render(self.text,1,self.colour)
+
+class Menu:
+	def __init__(self,id,panel,buttons):
+		self.id = id
+		self.panel = panel
+		self.buttons = buttons
 
 def Awake():
 	global screen

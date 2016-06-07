@@ -1,40 +1,42 @@
-City	
-	City Hall/cityhall/0/5/1/10/0
-Road
-	Dirt Road/229,169,76/2/0/0/0/0/0.1
-	Gravel Road/204,204,204/5/1/0/0/0/0.2
-	Paved Road/102,102,102/20/2/0/0/0/0.5
-	Avenue/51,51,51/40/5/0/0/0/0.75
-	Highway/25,25,25/100/10/0/0/0/1
+City
+	City Hall/0/5/1/10/0
+Roads
+	Dirt Road/2/0/0/0/0/0.1
+	Gravel Road/5/1/0/0/0/0.2
+	Paved Road/20/2/0/0/0/0.5
+	Boulevard/40/5/0/0/0/0.75
+	Avenue/100/10/0/0/0/1
 Residential
-	Trailer/255,226,153/15/1/0/3/0
-	Bungalow/255,190,153/25/2/0/4/0
-	Family House/224,255,153/40/4/0/6/0
-	Mansion/188,176,128/100/20/0/10/0
-	Apartment/0,189,84/150/10/0/128/0
-	Condominium/0,189,183/1500/50/0/512/0
+	Trailer/15/1/0/3/0
+	Bungalow/25/2/0/4/0
+	Family House/40/4/0/6/0
+	Mansion/100/20/0/10/0
+	Apartment/150/10/0/128/0
+	Condominium/1500/50/0/512/0
 Commercial
 	Strip Mall/150/5/0/20/5
 	Big Box Store/250/7/0/30/7
 	Regional Mall/500/15/0/75/30
 	Upscale Store/800/30/0/15/60
-Industrial/200,100,0/200/3/1/50/-2
+Industrial
 	Farm/50/5/0/5/1
-	Factory/150/10/50/-5
-	Manufactory/300/20/70/-15
-	High-Tech/600/40/40/1
-Health/0,255,127/500/5/2/15/3
-	Clinic/
-	Hospital/
-Fire/255,0,0/350/3/2/20/3
-	
-Police/0,0,255/200/4/2/30/3
-	Booth/
-	Station/
-Water/150,150,255/200/1/5/5/-0.5
-
-Power/255,255,0/150/3/2/5/-0.5
-
-Bulldozer/255,150,0/0/0/0/0/0
-END
-buildingType,colour,cost,maintenanceBase,maintenanceModifier,maxPopulationModifer,landValueModifier
+	Factory/150/10/0/50/-5
+	Manufactory/300/20/0/70/-15
+	High-Tech/600/40/0/40/1
+Health
+	Clinic/500/30/0/20/3
+	Hospital/1500/90/0/150/8
+Fire
+	Fire Station/300/15/0/40/3
+Police
+	Police Booth/150/10/0/10/2
+	Police Station/650/40/0/60/6
+Water
+	Water Tower/50/5/0/2/-1
+	Water Pump/250/35/0/25/-3
+Power
+	Coal Power Plant/300/15/0/40/-25
+	Gas Power Plant/500/25/0/60/-15
+	Wind Farm/100/5/0/5/-2
+	Solar Farm/150/5/0/3/-1
+	Nuclear Power Station/2500/100/0/60/-10

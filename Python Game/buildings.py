@@ -3,6 +3,19 @@ from pygame.locals import *
 
 ''' BUILDING PREFABS '''
 
+class BuildingGroups:
+	def __init__(self):
+		self.groups = []
+		
+	def AddGroup(self,group):
+		self.groups.append(group)
+		
+	def FindGroupByName(self,name):
+		for group in self.groups:
+			if (group.groupName == name):
+				return group
+		return None
+
 class BuildingGroup:
 	def __init__(self,groupName):
 		self.groupName = groupName
@@ -10,34 +23,40 @@ class BuildingGroup:
 		
 	def AddPrefab(self,prefab):
 		self.buildings.append(prefab)
+		
+	def FindPrefabFromType(self,buildingType):
+		for building in self.buildings:
+			if (building.buildingType == buildingType):
+				return building
+		return None
 
 class BuildingPrefab:
-	def __init__(self,buildingType,colour,cost,maintenanceBase,maintenanceModifier,maxPopulationModifer,landValueModifier):
-		self.buildingType = buildingType
-		self.colour = colour
-		self.cost = cost
-		self.maintenanceBase = maintenanceBase
-		self.maintenanceModifier = maintenanceModifier
-		self.maxPopulation = maxPopulationModifer
-		self.landValueModifier = landValueModifier
+	def __init__(self,lineData):
+		self.buildingType = lineData[0]
+		self.cost = cost = float(lineData[1])
+		self.maintenanceBase = float(lineData[2])
+		self.maintenanceModifier = float(lineData[3])
+		self.maxPopulation = float(lineData[4])
+		self.landValueModifier = float(lineData[5])
 		
 class BuildingPrefabs:
 	def __init__(self):
 		self.prefabs = []
 		self.CreatePrefabs()
 		
-	def CreatePrefabs(self):
-		lineIndex = 0
-		for line in open("data/buildings.txt",'r'):
-			fixedLine = line.split('\n')[0]
-			if (fixedLine != "END"):
-				lineData = fixedLine.split("/")
-				
-				buildingType = lineData[0]
-				colour = (int(lineData[1].split(",")[0]),int(lineData[1].split(",")[1]),int(lineData[1].split(",")[2]))
-				
-				self.AddPrefab(BuildingPrefab(buildingType,colour,float(lineData[2]),float(lineData[3]),float(lineData[4]),float(lineData[5]),float(lineData[6])))
-			lineIndex += 1
+	def CreatePrefabs(self):		
+		file = open("data/buildings.txt",'r')
+		group = None
+		for initialLine in file:
+			line = initialLine.split('\n')[0]
+			if ('\t' in list(line)):
+				prefab = BuildingPrefab(line.split('/'))
+				group.AddPrefab(prefab)
+			else:
+				if (group != None):
+					buildingGroups.AddGroup(group)
+				group = BuildingGroup(line)
+		buildingGroups.AddGroup(group)
 		
 	def AddPrefab(self,prefab):
 		self.prefabs.append(prefab)
@@ -157,6 +176,8 @@ class Citizen:
 ''' INIT METHODS '''
 	
 def Awake():
+	global buildingGroups
+	buildingGroups = BuildingGroups()
 	global buildingPrefabs
 	buildingPrefabs = BuildingPrefabs()
 	
