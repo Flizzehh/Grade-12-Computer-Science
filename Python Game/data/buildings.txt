@@ -1,13 +1,13 @@
 City
 	City Hall/0/5/1/10/0
 Roads
-	Dirt Road/2/0/0/0/0/0.1
-	Gravel Road/5/1/0/0/0/0.2
-	Paved Road/20/2/0/0/0/0.5
-	Boulevard/40/5/0/0/0/0.75
+	Dirt Road/2/0/0/0/0/0.3
+	Gravel Road/5/1/0/0/0/0.4
+	Paved Road/20/2/0/0/0/0.6
+	Boulevard/40/5/0/0/0/0.85
 	Avenue/100/10/0/0/0/1
 Residential
-	Trailer Park/15/1/0/3/0
+	Trailer Park/15/1/0/20/0
 	Bungalow/25/2/0/4/0
 	Family House/40/4/0/6/0
 	Mansion/100/20/0/10/0

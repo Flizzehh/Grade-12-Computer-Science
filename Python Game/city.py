@@ -24,17 +24,12 @@ class City:
 		for tile in tm.tiles:
 			if (tile.building != None):
 				self.population += len(tile.building.population)
-					
-				groupName = tile.building.prefab.group.groupName
-				if (groupName == "Residential"):
-					self.income += len(tile.building.population) * tile.building.employed + (tile.building.landValue * 0.05)
-				elif (groupName == "Commercial"):
-					self.income += tile.building.employed
-				elif (groupName == "Industrial"):
-					self.income += tile.building.employed
-				
+
+				self.income += tile.building.income
 				self.expense += tile.building.prefab.maintenanceBase
 				
+		self.expense += (0.001 * self.population)
+
 		from times import time
 		if (self.bankTimer < 10):
 			self.bankTimer += 1 * time.deltaTime
@@ -46,6 +41,36 @@ class City:
 		self.bank += (self.income - self.expense)
 		
 	def CalculateRCI(self):
+
+		averageComEmployedRatio = 0
+		numComBuildings = 0
+		comWorkers = 0
+
+		from tiles import tm
+		for tile in tm.tiles:
+			if (tile.building != None):
+				if (tile.building.prefab.group.groupName == "Residential"):
+					pass
+				elif (tile.building.prefab.group.groupName == "Commercial"):
+					numComBuildings += 1
+					averageComEmployedRatio += (len(tile.building.population)/tile.building.prefab.maxPopulation)
+					comWorkers += len(tile.building.population)
+		
+		self.comDemand = 1
+		if (numComBuildings > 0 and comWorkers > 0):
+			averageComEmployedRatio /= numComBuildings
+			self.comDemand = ((self.population / (numComBuildings * (comWorkers * 3))) + averageComEmployedRatio) / 2
+
+		# self.comDemand = 1
+		# if (numComBuildings > 0):
+		# 	averageComEmployedRatio /= numComBuildings
+		# 	if (comWorkers > 0):
+		# 		self.comDemand = (averageComEmployedRatio + (self.population/(numComBuildings*comWorkers)))/2
+
+		self.resDemand = 1
+		self.indDemand = 1
+
+	def OLD_CalculateRCI(self):
 	
 		from tiles import tm
 	

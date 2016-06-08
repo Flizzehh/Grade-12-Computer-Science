@@ -55,6 +55,10 @@ class BuildingPrefab:
 			self.spriteSheet = pygame.image.load("data/images/temp.png")
 		self.sprites = []
 		self.SplitSprites()
+
+		self.moveSpeed = 1
+		if (self.group.groupName == "Roads"):
+			self.moveSpeed = float(lineData[6])
 		
 	def SplitSprites(self):
 		spriteSheetSize = self.spriteSheet.get_rect().size
@@ -105,6 +109,7 @@ class Building:
 		
 		self.employed = 0
 		self.landValue = 1
+		self.income = 0
 		
 		self.populationTimer = 0
 		
@@ -115,14 +120,21 @@ class Building:
 			city.cityHall = self
 		
 	def Update(self):
+
+		from city import city
+
 		if (self.prefab.group.groupName == "Residential"):
+
+			self.income = (len(self.population) * self.employed + self.landValue) * 0.01
+
 			if (len(self.population) < self.prefab.maxPopulation):
 				if (self.populationTimer < 10 / self.landValue):
 					self.populationTimer += 1 * times.time.deltaTime
 				else:
+					
 					self.populationTimer = 0
-					self.population.append(Citizen(self))
-					from city import city
+					if (random.randrange(0,100) < (city.resDemand * 100)):
+						self.population.append(Citizen(self))
 					city.CalculateRCI()
 				
 			self.employed = 0
@@ -133,7 +145,7 @@ class Building:
 					self.employed += 1
 					
 					if (citizen.positionTimer < 1):
-						citizen.positionTimer += citizen.speed * times.time.deltaTime
+						citizen.positionTimer += citizen.speed * times.time.deltaTime * citizen.originPathTile.building.prefab.moveSpeed
 						citizen.position = ((citizen.targetPathTile.position[0]-citizen.originPathTile.position[0]) * citizen.positionTimer + citizen.originPathTile.position[0],(citizen.targetPathTile.position[1]-citizen.originPathTile.position[1]) * citizen.positionTimer + citizen.originPathTile.position[1])
 					else:
 						citizen.positionTimer = 0
@@ -147,6 +159,12 @@ class Building:
 						
 					from tiles import tm
 					pygame.draw.rect(tm.tileSurface, (255,255,255), (citizen.position[0]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,citizen.position[1]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,round(tm.tileSize/citizen.size),round(tm.tileSize/citizen.size)))
+
+		elif (self.prefab.group.groupName == "Commercial"):
+			self.income = len(self.population) * city.comDemand * 0.01
+
+		elif (self.prefab.group.groupName == "Industrial"):
+			self.income = len(self.population) * city.indDemand * 0.01
 	
 	def SelfBitmasking(self):
 		self.Bitmasking()
@@ -161,7 +179,7 @@ class Building:
 			for tileIndex in range(len(self.tile.surroundingTiles[:4])):
 				surroundingTile = self.tile.surroundingTiles[tileIndex]
 				if (surroundingTile != None):
-					if (surroundingTile.building != None and surroundingTile.building.prefab == self.prefab):
+					if (surroundingTile.building != None and (surroundingTile.building.prefab == self.prefab or surroundingTile.building.prefab.group == self.prefab.group)):
 						value += math.pow(2,tileIndex)
 			self.sprite = self.prefab.sprites[int(value)]
 		else:
