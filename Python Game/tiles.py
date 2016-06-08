@@ -105,14 +105,26 @@ class TileMap:
 		for x in range(self.size):
 			for y in range(self.size):
 				tile = self.sortedTiles[x][y]
-				if (y + 1 < self.size):
-					tile.surroundingTiles.append(self.sortedTiles[x][y+1])
-				if (x + 1 < self.size):
-					tile.surroundingTiles.append(self.sortedTiles[x+1][y])
+
 				if (y - 1 >= 0):
 					tile.surroundingTiles.append(self.sortedTiles[x][y-1])
+				else:
+					tile.surroundingTiles.append(None)
+
+				if (x + 1 < self.size):
+					tile.surroundingTiles.append(self.sortedTiles[x+1][y])
+				else:
+					tile.surroundingTiles.append(None)
+
+				if (y + 1 < self.size):
+					tile.surroundingTiles.append(self.sortedTiles[x][y+1])
+				else:
+					tile.surroundingTiles.append(None)
+
 				if (x - 1 >= 0):
-					tile.surroundingTiles.append(self.sortedTiles[x-1][y])		
+					tile.surroundingTiles.append(self.sortedTiles[x-1][y])
+				else:
+					tile.surroundingTiles.append(None)
 					
 				if (x - 1 >= 0  and y + 1 < self.size):
 					tile.surroundingTiles.append(self.sortedTiles[x-1][y+1])
@@ -128,7 +140,8 @@ class TileMap:
 			for tile in self.tiles:
 				averageSurroundingHeight = 0
 				for surroundingTile in tile.surroundingTiles:
-					averageSurroundingHeight += surroundingTile.height
+					if (surroundingTile != None):
+						averageSurroundingHeight += surroundingTile.height
 				averageSurroundingHeight /= len(tile.surroundingTiles)
 				tile.tempHeight = averageSurroundingHeight
 				
@@ -162,9 +175,10 @@ class TileMap:
 						regionTiles.append(currentTile)
 						currentTile.region = region
 					for surroundingTile in currentTile.surroundingTiles:
-						if (surroundingTile not in checkedTiles and surroundingTile.region == None and surroundingTile.prefab == currentTile.prefab):
-							frontier.append(surroundingTile)
-							checkedTiles.append(surroundingTile)
+						if (surroundingTile != None):
+							if (surroundingTile not in checkedTiles and surroundingTile.region == None and surroundingTile.prefab == currentTile.prefab):
+								frontier.append(surroundingTile)
+								checkedTiles.append(surroundingTile)
 						
 				region.AddTiles(regionTiles)
 				self.regions.append(region)
@@ -179,10 +193,11 @@ class TileMap:
 		for tile in self.tiles:
 			if (tile.prefab.tileType == "Grass"):
 				for surroundingTile in tile.surroundingTiles:
-					if (surroundingTile.prefab.tileType == "Water"):
-						tile.prefab = tilePrefabs.FindPrefabFromType("Sand")
-					elif (surroundingTile.prefab.tileType == "Stone"):
-						tile.prefab = tilePrefabs.FindPrefabFromType("Dirt")
+					if (surroundingTile != None):
+						if (surroundingTile.prefab.tileType == "Water"):
+							tile.prefab = tilePrefabs.FindPrefabFromType("Sand")
+						elif (surroundingTile.prefab.tileType == "Stone"):
+							tile.prefab = tilePrefabs.FindPrefabFromType("Dirt")
 						
 	def Update(self):
 	
@@ -208,44 +223,41 @@ class TileMap:
 					else:
 						tileColour = (round(tileColour[0]),round(tileColour[1]/2),round(tileColour[2]/2))
 					if (tile.prefab.tileType == "Grass" and ui.mouseDown and ui.mouseOverUI == False and tile.building == None):
-						if (ui.selectedBuilding.buildingType == "City Hall" or ((ui.selectedBuilding.buildingType == "Road" and tile in self.validRoadTiles) or tile in self.validBuildTiles)):
-							
+						if (ui.selectedBuilding.buildingType == "City Hall" or ((ui.selectedBuilding.group.groupName == "Roads" and tile in self.validRoadTiles) or tile in self.validBuildTiles)):				
 							self.BuildBuilding(tile,ui.selectedBuilding)
 					if  (ui.selectedBuilding.buildingType == "Bulldozer" and ui.mouseDown and ui.mouseOverUI == False):
 						self.BuildBuilding(tile,ui.selectedBuilding)
 								
-				if  (tile in tm.validRoadTiles and ui.selectedBuilding != None and ui.selectedBuilding.buildingType == "Road"):
+				if  (tile in tm.validRoadTiles and ui.selectedBuilding != None and ui.selectedBuilding.group.groupName == "Roads"):
 					tileColour = (tileColour[0]/2,tileColour[1],tileColour[2]/2)
-				elif (tile in tm.validBuildTiles and ui.selectedBuilding != None and ui.selectedBuilding.buildingType != "Road" and ui.selectedBuilding.buildingType != "City Hall"):
+				elif (tile in tm.validBuildTiles and ui.selectedBuilding != None and ui.selectedBuilding.group.groupName != "Roads" and ui.selectedBuilding.buildingType != "City Hall"):
 					tileColour = (tileColour[0]/2,tileColour[1],tileColour[2]/2)
 					
 				pygame.draw.rect(self.tileSurface,tileColour,tile.position)
 				
 				if (tile.building != None):
-					buildingRect = tile.position
-					if (tile.building.prefab.buildingType != "Road"):
-						buildingRect = (tile.position[0]+(self.tileSize*0.1),tile.position[1]+(self.tileSize*0.1),self.tileSize-(self.tileSize*0.2),self.tileSize-(self.tileSize*0.2))				
+					# buildingRect = tile.position
+					# if (tile.building.prefab.group.groupName != "Roads"):
+					# 	buildingRect = (tile.position[0]+(self.tileSize*0.1),tile.position[1]+(self.tileSize*0.1),self.tileSize-(self.tileSize*0.2),self.tileSize-(self.tileSize*0.2))				
 					
-					for value in range(len(tile.surroundingTiles[:4])):
-						surroundingTile = tile.surroundingTiles[value]
-						if (surroundingTile.building != None and surroundingTile.building.prefab.buildingType == "Road"):
-							connectingRoadRect = None
-							if (value == 0):
-								connectingRoadRect = (tile.position[0]+self.tileSize/4,tile.position[1]+self.tileSize/2,self.tileSize/2,self.tileSize/2)
-							if (value == 1):
-								connectingRoadRect = (tile.position[0]+self.tileSize/2,tile.position[1]+self.tileSize/4,self.tileSize/2,self.tileSize/2)
-							if (value == 2):
-								connectingRoadRect = (tile.position[0]+self.tileSize/4,tile.position[1],self.tileSize/2,self.tileSize/2)
-							if (value == 3):
-								connectingRoadRect = (tile.position[0],tile.position[1]+self.tileSize/4,self.tileSize/2,self.tileSize/2)
-							pygame.draw.rect(self.tileSurface,buildingPrefabs.FindPrefabFromType("Road").colour,connectingRoadRect)
+					# for value in range(len(tile.surroundingTiles[:4])):
+					# 	surroundingTile = tile.surroundingTiles[value]
+					# 	if (surroundingTile.building != None and surroundingTile.building.prefab.group.groupName == "Roads"):
+					# 		connectingRoadRect = None
+					# 		if (value == 0):
+					# 			connectingRoadRect = (tile.position[0]+self.tileSize/4,tile.position[1]+self.tileSize/2,self.tileSize/2,self.tileSize/2)
+					# 		if (value == 1):
+					# 			connectingRoadRect = (tile.position[0]+self.tileSize/2,tile.position[1]+self.tileSize/4,self.tileSize/2,self.tileSize/2)
+					# 		if (value == 2):
+					# 			connectingRoadRect = (tile.position[0]+self.tileSize/4,tile.position[1],self.tileSize/2,self.tileSize/2)
+					# 		if (value == 3):
+					# 			connectingRoadRect = (tile.position[0],tile.position[1]+self.tileSize/4,self.tileSize/2,self.tileSize/2)
+					# 		pygame.draw.rect(self.tileSurface,buildingPrefabs.FindPrefabFromType("Road").colour,connectingRoadRect)
 							
-					#pygame.draw.rect(self.tileSurface,tile.building.prefab.colour,buildingRect)
-					#tile.building.sprite.convert(self.tileSurface)
-					tile.building.sprite = pygame.transform.scale(tile.building.sprite,(round(self.tileSize/32) * self.tileSize,round(self.tileSize/32) * self.tileSize))
+					tile.building.sprite = pygame.transform.scale(tile.building.sprite,(round(self.tileSize/32) * 32,round(self.tileSize/32) * 32))
 					self.tileSurface.blit(tile.building.sprite,(tile.position[0],tile.position[1],self.tileSize,self.tileSize))
 					
-					if (ui.mouseOverTile == tile and tile.building.prefab.buildingType == "Residential"):
+					if (ui.mouseOverTile == tile and tile.building.prefab.group.groupName == "Residential"):
 						for citizen in tile.building.population:
 							if (citizen.jobBuilding != None):
 								lines.append(Line((255,255,255),(tile.position[0]+self.tileSize/2,tile.position[1]+self.tileSize/2),(citizen.jobBuilding.tile.position[0]+self.tileSize/2,citizen.jobBuilding.tile.position[1]+self.tileSize/2),round(self.tileSize * 0.05)))
@@ -255,9 +267,10 @@ class TileMap:
 	def BuildBuilding(self,tile,building):
 		from buildings import Building
 		from city import city
-		
+
 		newBuilding = Building(building,tile)
 		tile.AddBuilding(newBuilding)
+		newBuilding.SelfBitmasking()
 		self.CalculateLandValue()
 		self.FindValidRoadTiles()
 		self.FindValidBuildingSpots()
@@ -269,15 +282,15 @@ class TileMap:
 			
 	def CalculateLandValue(self):
 		from gm import CalculatePointDistance
-		from buildings import buildingPrefabs
+		from buildings import buildingGroups
 		largestDistance = math.sqrt(math.pow(self.size,2) + (math.pow(self.size,2))) * 2
 		for tile in self.tiles:
-			if (tile.building != None and tile.building.prefab.buildingType == "Residential"):
+			if (tile.building != None and tile.building.prefab.group.groupName == "Residential"):
 				closestBuildings = dict()
 				for nTile in self.tiles:
 					if (tile != nTile and nTile.building != None):
 						buildingType = nTile.building.prefab.buildingType
-						if (buildingType != "Road" and buildingType != "Residential"):
+						if (nTile.building.prefab.group.groupName != "Roads" and nTile.building.prefab.group.groupName != "Residential"):
 							distance = CalculatePointDistance(nTile.indexPos,tile.indexPos)/largestDistance
 							if (buildingType in closestBuildings):
 								if (closestBuildings[buildingType] > distance):
@@ -288,7 +301,7 @@ class TileMap:
 				for key in closestBuildings:
 					distanceMultiplier = (1 - closestBuildings[key])
 					#print(key + " " + str(distanceMultiplier * buildingPrefabs.FindPrefabFromType(key).landValueModifier))
-					tile.building.landValue += distanceMultiplier * buildingPrefabs.FindPrefabFromType(key).landValueModifier
+					tile.building.landValue += distanceMultiplier * buildingGroups.FindPrefabFromName(key).landValueModifier
 				'''
 				if (tile.building.landValue < 1 and tile.building.landValue >= 0):
 					tile.building.landValue = 1
@@ -313,18 +326,20 @@ class TileMap:
 			if (currentTile.prefab.tileType == "Grass" and currentTile.building == None):
 				self.validRoadTiles.append(currentTile)
 			for surroundingTile in currentTile.surroundingTiles[:4]:
-				if (surroundingTile not in checkedTiles and currentTile.building != None and (currentTile.building.prefab.buildingType == "Road" or currentTile.building.prefab.buildingType == "City Hall")):
-					frontier.append(surroundingTile)
-					checkedTiles.append(surroundingTile)
+				if (surroundingTile != None):
+					if (surroundingTile not in checkedTiles and currentTile.building != None and (currentTile.building.prefab.group.groupName == "Roads" or currentTile.building.prefab.buildingType == "City Hall")):
+						frontier.append(surroundingTile)
+						checkedTiles.append(surroundingTile)
 	
 	def FindValidBuildingSpots(self):
 		self.validBuildTiles.clear()
 		for tile in self.tiles:
 			foundRoad = False
 			for surroundingTile in tile.surroundingTiles[:4]:
-				if (surroundingTile.building != None and surroundingTile.building.prefab.buildingType == "Road"):
-					foundRoad = True
-					break
+				if (surroundingTile != None):
+					if (surroundingTile.building != None and surroundingTile.building.prefab.group.groupName == "Roads"):
+						foundRoad = True
+						break
 			if (foundRoad and tile.building == None and tile.prefab.tileType == "Grass"):
 				self.validBuildTiles.append(tile)
 				

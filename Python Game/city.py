@@ -25,12 +25,12 @@ class City:
 			if (tile.building != None):
 				self.population += len(tile.building.population)
 					
-				buildingType = tile.building.prefab.buildingType
-				if (buildingType == "Residential"):
+				groupName = tile.building.prefab.group.groupName
+				if (groupName == "Residential"):
 					self.income += len(tile.building.population) * tile.building.employed + (tile.building.landValue * 0.05)
-				elif (buildingType == "Commercial"):
+				elif (groupName == "Commercial"):
 					self.income += tile.building.employed
-				elif (buildingType == "Industrial"):
+				elif (groupName == "Industrial"):
 					self.income += tile.building.employed
 				
 				self.expense += tile.building.prefab.maintenanceBase
@@ -63,12 +63,12 @@ class City:
 			if (tile.building != None):
 				employedCitizens += tile.building.employed
 				numBuildings += 1
-				if (tile.building.prefab.buildingType == "Residential"):
+				if (tile.building.prefab.group.groupName == "Residential"):
 					averageLandValue += tile.building.landValue
 					numRes += 1
-				elif (tile.building.prefab.buildingType == "Commercial"):
+				elif (tile.building.prefab.group.groupName == "Commercial"):
 					numCom += 1
-				elif (tile.building.prefab.buildingType == "Industrial"):
+				elif (tile.building.prefab.group.groupName == "Industrial"):
 					numInd += 1
 		if (numBuildings != 0 and self.population != 0):
 			averageLandValue /= numBuildings

@@ -91,12 +91,12 @@ class UI:
 			
 			self.AddButton(button)
 			
-			menuSize = (100,len(group.buildings)*50)
+			menuSize = (buildingButtonSize[0],len(group.buildings)*buildingButtonSize[1]+15)
 			menuPanel = Panel((buildingButtonPosition[0],buildingButtonPosition[1]-menuSize[1]-5),(menuSize[0],menuSize[1]-15),(255,255,255),5,(200,200,200))
 			menuButtons = []
 			for buildingIndex in range(len(group.buildings)):
 				building = group.buildings[buildingIndex]
-				buttonPosition = (buildingButtonPosition[0],buildingButtonPosition[1]-(50*(buildingIndex+1))-5)
+				buttonPosition = (buildingButtonPosition[0],buildingButtonPosition[1]-(buildingButtonSize[1]*(buildingIndex+1))-(buildingButtonSize[1]-15))
 				buttonText = Text(buttonPosition,buildingButtonSize,building.buildingType,"verdana",12,(200,200,200))
 				menuButtons.append(Button(buttonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100),None,building))
 			menu = Menu(group,menuPanel,menuButtons)
@@ -111,18 +111,18 @@ class UI:
 		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+65),cityPanelSize,"+$" + str(round(city.income)),"verdana",12,(50,200,50)))
 		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+80),cityPanelSize,"-$" + str(round(city.expense)),"verdana",12,(200,50,50)))	
 		
-		if (self.mouseOverTile != None and self.mouseOverTile.building != None and self.mouseOverTile.building.prefab.buildingType != "Road"):
+		if (self.mouseOverTile != None and self.mouseOverTile.building != None and self.mouseOverTile.building.prefab.group.groupName != "Roads"):
 			building = self.mouseOverTile.building
 			self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]),(255,255,255),5,(200,200,200)))
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,building.prefab.buildingType,"verdana",14,(50,50,50)))
-			if (building.prefab.buildingType == "Residential"):
+			if (building.prefab.group.groupName == "Residential"):
 				self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Population","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+45),cityPanelSize,"Value","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Citizens","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+30),cityPanelSize,str(building.employed) + " Employed","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+60),cityPanelSize,"$" + str(round(building.landValue)),"verdana",12,(50,200,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+75),cityPanelSize,"$" + str(round(building.prefab.maintenanceBase)),"verdana",12,(200,50,50)))
-			elif (building.prefab.buildingType != "Road"):
+			elif (building.prefab.group.groupName != "Roads"):
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Employees","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+30),cityPanelSize,"-$" + str(round(building.prefab.maintenanceBase)),"verdana",12,(200,50,50)))
 		else:
@@ -256,12 +256,11 @@ class UI:
 				if (button.building != None and city.bank < button.building.cost):
 					button.disabled = True
 		
-		button.disabled = False
-		
 		if (button.disabled):
 			buttonColour = (button.normalColour[0]/2,button.normalColour[1]/2,button.normalColour[2]/2)
-			if (ui.selectedBuilding != None and ui.selectedBuilding.buildingType == button.text.text):
+			if ((ui.selectedGroup != None and ui.selectedGroup == button.group) or (ui.selectedBuilding != None and ui.selectedBuilding.buildingType == button.text.text)):
 				ui.selectedBuilding = None
+				ui.selectedGroup = None
 				
 		pygame.draw.rect(self.uiSurface,buttonColour,(button.position)+(button.size))
 		if (button.text != None):

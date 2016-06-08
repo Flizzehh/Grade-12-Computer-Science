@@ -49,8 +49,10 @@ class BuildingPrefab:
 		self.maxPopulation = float(lineData[4])
 		self.landValueModifier = float(lineData[5])
 		self.group = group
-		#self.spriteSheet = pygame.image.load("data/images/"+group.groupName+"/"+self.buildingType)
-		self.spriteSheet = pygame.image.load("data/images/City/City Hall.png")
+		try:
+			self.spriteSheet = pygame.image.load("data/images/"+group.groupName+"/"+self.buildingType+".png")
+		except pygame.error:
+			self.spriteSheet = pygame.image.load("data/images/temp.png")
 		self.sprites = []
 		self.SplitSprites()
 		
@@ -113,7 +115,7 @@ class Building:
 			city.cityHall = self
 		
 	def Update(self):
-		if (self.prefab.buildingType == "Residential"):
+		if (self.prefab.group.groupName == "Residential"):
 			if (len(self.population) < self.prefab.maxPopulation):
 				if (self.populationTimer < 10 / self.landValue):
 					self.populationTimer += 1 * times.time.deltaTime
@@ -144,15 +146,26 @@ class Building:
 							citizen.pathToWork.reverse()
 						
 					from tiles import tm
-					pygame.draw.rect(tm.tileSurface, citizen.jobBuilding.prefab.colour, (citizen.position[0]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,citizen.position[1]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,round(tm.tileSize/citizen.size),round(tm.tileSize/citizen.size)))
-		
+					pygame.draw.rect(tm.tileSurface, (255,255,255), (citizen.position[0]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,citizen.position[1]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,round(tm.tileSize/citizen.size),round(tm.tileSize/citizen.size)))
+	
+	def SelfBitmasking(self):
+		self.Bitmasking()
+		for tile in self.tile.surroundingTiles:
+			if (tile != None):
+				if (tile.building != None):
+					tile.building.Bitmasking()
+
 	def Bitmasking(self):
-		value = 0
-		for tileIndex in range(len(self.tile.surroundingTile[:4])):
-			if (tileIndex != None):
-				if (surroundingTile.building != None and surroundingTile.building.prefab == self.prefab):
-					value += math.pow(2,tileIndex)
-		self.sprite = self.prefab.sprites[value]
+		if (len(self.prefab.sprites) > 1):
+			value = 0
+			for tileIndex in range(len(self.tile.surroundingTiles[:4])):
+				surroundingTile = self.tile.surroundingTiles[tileIndex]
+				if (surroundingTile != None):
+					if (surroundingTile.building != None and surroundingTile.building.prefab == self.prefab):
+						value += math.pow(2,tileIndex)
+			self.sprite = self.prefab.sprites[int(value)]
+		else:
+			self.sprite = self.prefab.sprites[0]
 		
 class Citizen:
 	def __init__(self,building):
@@ -175,7 +188,7 @@ class Citizen:
 		closestJobBuilding = None
 		closestJobBuildingDistance = 0
 		for tile in tm.tiles:
-			if (tile.building != None and tile.building.prefab.buildingType != "Residential" and tile.building.prefab.buildingType != "Road" and len(tile.building.population) < tile.building.prefab.maxPopulation):
+			if (tile.building != None and tile.building.prefab.group.groupName != "Residential" and tile.building.prefab.group.groupName != "Roads" and len(tile.building.population) < tile.building.prefab.maxPopulation):
 				distance = CalculatePointDistance(tile.position,self.homeBuilding.tile.position)
 				if (closestJobBuilding == None or distance < closestJobBuildingDistance):
 					closestJobBuilding = tile.building
@@ -199,10 +212,11 @@ class Citizen:
 					currentTile = currentTile.cameFrom
 				
 			for surroundingTile in currentTile.surroundingTiles[:4]:
-				if (surroundingTile not in checkedTiles and surroundingTile.building != None and (surroundingTile.building.prefab.buildingType == "Road" or surroundingTile.building == self.jobBuilding)):
-					frontier.append(surroundingTile)
-					checkedTiles.append(surroundingTile)
-					surroundingTile.cameFrom = currentTile
+				if (surroundingTile != None):
+					if (surroundingTile not in checkedTiles and surroundingTile.building != None and (surroundingTile.building.prefab.group.groupName == "Roads" or surroundingTile.building == self.jobBuilding)):
+						frontier.append(surroundingTile)
+						checkedTiles.append(surroundingTile)
+						surroundingTile.cameFrom = currentTile
 					
 		self.pathToWork.append(self.homeBuilding.tile)
 		self.pathToWork.reverse()
