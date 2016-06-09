@@ -48,6 +48,7 @@ class BuildingPrefab:
 		self.maintenanceModifier = float(lineData[3])
 		self.maxPopulation = float(lineData[4])
 		self.landValueModifier = float(lineData[5])
+
 		self.group = group
 		try:
 			self.spriteSheet = pygame.image.load("data/images/"+group.groupName+"/"+self.buildingType+".png")
@@ -110,6 +111,9 @@ class Building:
 		self.employed = 0
 		self.landValue = 1
 		self.income = 0
+		self.expense = 0
+
+		self.efficiency = 0
 		
 		self.populationTimer = 0
 		
@@ -125,10 +129,10 @@ class Building:
 
 		if (self.prefab.group.groupName == "Residential"):
 
-			self.income = (len(self.population) * self.employed + self.landValue) * 0.01
+			self.income = (len(self.population) * self.employed + self.landValue) * 0.1
 
 			if (len(self.population) < self.prefab.maxPopulation):
-				if (self.populationTimer < 10 / self.landValue):
+				if (self.populationTimer < 10 * (1-city.resDemand)):
 					self.populationTimer += 1 * times.time.deltaTime
 				else:
 					
@@ -165,6 +169,11 @@ class Building:
 
 		elif (self.prefab.group.groupName == "Industrial"):
 			self.income = len(self.population) * city.indDemand * 0.01
+
+		self.expense = (len(self.population) * 0.1) + self.prefab.maintenanceBase
+
+		if (self.prefab.maxPopulation > 0):
+			self.efficiency = len(self.population) / self.prefab.maxPopulation
 	
 	def SelfBitmasking(self):
 		self.Bitmasking()
@@ -198,7 +207,7 @@ class Citizen:
 		self.targetPathTile = self.homeBuilding.tile
 		self.indexNum = 0
 		
-		self.size = random.randrange(4,10)
+		self.size = random.randrange(8,10)
 		self.speed = random.randrange(1,3) / 2
 		
 	def FindJob(self):

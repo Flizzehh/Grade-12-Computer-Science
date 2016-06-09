@@ -23,6 +23,10 @@ class TimeManager:
 			if  (self.day > 30):
 				self.month += 1
 				self.day = 0
+
+				from city import city
+				city.CalculateBank()
+
 				if (self.month > 12):
 					self.year += 1
 					self.month = 0

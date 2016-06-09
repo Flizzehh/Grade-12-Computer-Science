@@ -108,29 +108,30 @@ class UI:
 		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+15),cityPanelSize,str(round(city.population)) + " Citizens","verdana",12,(50,50,200)))
 		
 		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+50),cityPanelSize,"$" + str(round(city.bank)),"verdana",12,(50,50,200)))
-		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+65),cityPanelSize,"+$" + str(round(city.income)),"verdana",12,(50,200,50)))
-		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+80),cityPanelSize,"-$" + str(round(city.expense)),"verdana",12,(200,50,50)))	
+		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+65),cityPanelSize,"$" + str(round(city.income)) + " Income","verdana",12,(50,200,50)))
+		self.AddUpdateText(Text((cityTextPosition[0],cityTextPosition[1]+80),cityPanelSize,"$" + str(round(city.expense)) + " Expense","verdana",12,(200,50,50)))	
 		
 		if (self.mouseOverTile != None and self.mouseOverTile.building != None and self.mouseOverTile.building.prefab.group.groupName != "Roads"):
 			building = self.mouseOverTile.building
 			self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]),(255,255,255),5,(200,200,200)))
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,building.prefab.buildingType,"verdana",14,(50,50,50)))
 			if (building.prefab.group.groupName == "Residential"):
-				#self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Population","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+45),cityPanelSize,"Value","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Citizens","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+30),cityPanelSize,str(building.employed) + " Employed","verdana",12,(50,50,200)))
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+60),cityPanelSize,"$" + str(round(building.landValue)),"verdana",12,(50,200,50)))
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+75),cityPanelSize,"$" + str(round(building.prefab.maintenanceBase)),"verdana",12,(200,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+60),cityPanelSize,"$" + str(round(building.income)) + " Income","verdana",12,(50,200,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+75),cityPanelSize,"$" + str(round(building.expense)) + " Expense","verdana",12,(200,50,50)))
 			elif (building.prefab.group.groupName != "Roads"):
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Employees","verdana",12,(50,50,200)))
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+30),cityPanelSize,"-$" + str(round(building.prefab.maintenanceBase)),"verdana",12,(200,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+35),cityPanelSize,"Value","verdana",14,(50,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+50),cityPanelSize,"$" + str(round(building.income)) + " Income","verdana",12,(50,200,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+65),cityPanelSize,"$" + str(round(building.expense)) + " Expense","verdana",12,(200,50,50)))
 		else:
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Mouse over a building for more information.","verdana",10,(50,50,50)))
 			
-		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+30),cityPanelSize,str(round(city.resDemand) * 100) + "%","verdana",12,(0,150,0)))
-		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+60),cityPanelSize,str(round(city.comDemand) * 100) + "%","verdana",12,(0,0,150)))
-		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+90),cityPanelSize,str(round(city.indDemand) * 100) + "%","verdana",12,(255,127,0)))
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+30),cityPanelSize,str(round(city.resDemand * 100)) + "%","verdana",12,(0,150,0)))
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+60),cityPanelSize,str(round(city.comDemand * 100)) + "%","verdana",12,(0,0,150)))
+		self.AddUpdateText(Text((rciTextPosition[0],rciTextPosition[1]+90),cityPanelSize,str(round(city.indDemand * 100)) + "%","verdana",12,(255,127,0)))
 		
 		from times import time
 		self.AddUpdateText(Text((screen.width-20,0),(0,0),str(round(time.clock.get_fps())),"verdana",12,(50,50,50)))
