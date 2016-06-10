@@ -18,14 +18,13 @@ class City:
 		self.income = 0
 		self.expense = 0
 	
-		from tiles import tm
-		for tile in tm.tiles:
-			if (tile.building != None):
-				if (tile.building.prefab.group.groupName == "Residential"):
-					self.population += len(tile.building.population)
+		from buildings import buildings
+		for building in buildings.buildings:
+			if (building.prefab.group.groupName == "Residential"):
+				self.population += len(building.population)
 
-				self.income += tile.building.income
-				self.expense += tile.building.expense
+			self.income += building.income
+			self.expense += building.expense
 				
 		self.expense += (0.001 * self.population)
 	
@@ -38,15 +37,14 @@ class City:
 		numCommercial = 0
 		numIndustrial = 0
 
-		from tiles import tm
-		for tile in tm.tiles:
-			if (tile.building != None):
-				if (tile.building.prefab.group.groupName == "Residential"):
-					totalEmployed += tile.building.employed
-				if (tile.building.prefab.group.groupName == "Commercial"):
-					numCommercial += 1
-				if (tile.building.prefab.group.groupName == "Industrial"):
-					numIndustrial += 1
+		from buildings import buildings
+		for building in buildings.buildings:
+			if (building.prefab.group.groupName == "Residential"):
+				totalEmployed += building.employed
+			if (building.prefab.group.groupName == "Commercial"):
+				numCommercial += 1
+			if (building.prefab.group.groupName == "Industrial"):
+				numIndustrial += 1
 		
 		employmentRate = 1
 		commercialBuildingPopulationRatio = 1

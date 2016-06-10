@@ -62,6 +62,9 @@ class Tile:
 			
 		from city import city
 		city.CalculateRCI()
+
+		from buildings import buildings
+		buildings.AddBuilding(building)
 		
 	def CalculateTilePosition(self):
 		self.position = (self.indexPos[0]*tm.tileSize+camera.position[0]*tm.tileSize,self.indexPos[1]*tm.tileSize+camera.position[1]*tm.tileSize,tm.tileSize,tm.tileSize)
@@ -201,8 +204,7 @@ class TileMap:
 						
 	def Update(self):
 	
-		from ui import ui		
-		from buildings import buildingPrefabs	
+		from ui import ui
 		
 		visibleTiles = 0
 		
@@ -282,16 +284,16 @@ class TileMap:
 			
 	def CalculateLandValue(self):
 		from gm import CalculatePointDistance
-		from buildings import buildingGroups
+		from buildings import buildings, buildingGroups
 		largestDistance = math.sqrt(math.pow(self.size,2) + (math.pow(self.size,2))) * 2
-		for tile in self.tiles:
-			if (tile.building != None and tile.building.prefab.group.groupName == "Residential"):
+		for building in buildings.buildings:
+			if (building.prefab.group.groupName == "Residential"):
 				closestBuildings = dict()
-				for nTile in self.tiles:
-					if (tile != nTile and nTile.building != None):
-						buildingType = nTile.building.prefab.buildingType
-						if (nTile.building.prefab.group.groupName != "Roads" and nTile.building.prefab.group.groupName != "Residential"):
-							distance = CalculatePointDistance(nTile.indexPos,tile.indexPos)/largestDistance
+				for tBuilding in buildings.buildings:
+					if (building.tile != tBuilding.tile):
+						buildingType = tBuilding.prefab.buildingType
+						if (tBuilding.prefab.group.groupName != "Roads" and tBuilding.prefab.group.groupName != "Residential"):
+							distance = CalculatePointDistance(tBuilding.tile.indexPos,building.tile.indexPos)/largestDistance
 							if (buildingType in closestBuildings):
 								if (closestBuildings[buildingType] > distance):
 									closestBuildings[buildingType] = distance
@@ -300,8 +302,7 @@ class TileMap:
 					
 				for key in closestBuildings:
 					distanceMultiplier = (1 - closestBuildings[key])
-					#print(key + " " + str(distanceMultiplier * buildingPrefabs.FindPrefabFromType(key).landValueModifier))
-					tile.building.landValue += distanceMultiplier * buildingGroups.FindPrefabFromName(key).landValueModifier
+					building.landValue += distanceMultiplier * buildingGroups.FindPrefabFromName(key).landValueModifier
 				'''
 				if (tile.building.landValue < 1 and tile.building.landValue >= 0):
 					tile.building.landValue = 1
@@ -346,8 +347,7 @@ class TileMap:
 	def TileWithinCamera(self,tile):
 		
 		if (tile.indexPos[0]+1 >= -camera.position[0] and tile.indexPos[1]+1 >= -camera.position[1]):
-			if (tile.indexPos[0]-1 <= -camera.position[0]+(self.screen.width/self.tileSize) and tile.indexPos[1]-1 <= -camera.position[1]+(self.screen.height/self.tileSize)):
-				
+			if (tile.indexPos[0]-1 <= -camera.position[0]+(self.screen.width/self.tileSize) and tile.indexPos[1]-1 <= -camera.position[1]+(self.screen.height/self.tileSize)):			
 				return True
 		return False
 			

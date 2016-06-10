@@ -71,6 +71,7 @@ class UI:
 		self.AddText(Text(dateTextPosition,cityPanelSize,"Date","verdana",14,(50,50,50)))
 		
 		from buildings import buildingGroups
+		print(len(buildingGroups.groups))
 		
 		buildingButtonNum = len(buildingGroups.groups)
 		buildingButtonSize = (100,35)
@@ -116,14 +117,14 @@ class UI:
 			self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]),(255,255,255),5,(200,200,200)))
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,building.prefab.buildingType,"verdana",14,(50,50,50)))
 			if (building.prefab.group.groupName == "Residential"):
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+45),cityPanelSize,"Value","verdana",14,(50,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+45),cityPanelSize,"Information","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Citizens","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+30),cityPanelSize,str(building.employed) + " Employed","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+60),cityPanelSize,"$" + str(round(building.income)) + " Income","verdana",12,(50,200,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+75),cityPanelSize,"$" + str(round(building.expense)) + " Expense","verdana",12,(200,50,50)))
 			elif (building.prefab.group.groupName != "Roads"):
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Employees","verdana",12,(50,50,200)))
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+35),cityPanelSize,"Value","verdana",14,(50,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+35),cityPanelSize,"Information","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+50),cityPanelSize,"$" + str(round(building.income)) + " Income","verdana",12,(50,200,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+65),cityPanelSize,"$" + str(round(building.expense)) + " Expense","verdana",12,(200,50,50)))
 		else:

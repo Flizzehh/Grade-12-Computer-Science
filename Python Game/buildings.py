@@ -1,8 +1,6 @@
 import times, pygame, random, math
 from pygame.locals import *
 
-''' BUILDING PREFABS '''
-
 class BuildingGroups:
 	def __init__(self):
 		self.groups = []
@@ -69,7 +67,7 @@ class BuildingPrefab:
 				sprite = pygame.Surface((32,32))
 				sprite.blit(self.spriteSheet,(0,0),(x*32,y*32,32,32))
 				self.sprites.append(sprite)
-				
+	
 class BuildingPrefabs:
 	def __init__(self):
 		self.prefabs = []
@@ -98,8 +96,41 @@ class BuildingPrefabs:
 				return prefab
 		return None
 
-''' BUILDINGS '''
-	
+class Buildings:
+	def __init__(self):
+		self.buildings = []
+		self.buildingsDict = {}
+
+	def AddBuilding(self,building):
+
+		self.buildings.append(building)
+
+		foundPrefab = False
+		for key in self.buildingsDict:
+			if (key == building.prefab):
+				self.buildingsDict[key].append(building)
+				foundPrefab = True
+		if (foundPrefab == False):
+			self.buildingsDict[building.prefab] = []
+			self.buildingsDict[building.prefab].append(building)
+
+	def FindBuildingsFromName(self,name):
+		returnBuildings = []
+		for key in self.buildingsDict:
+			for building in self.buildingsDict[key]:
+				if (building.prefab.buildingType == name):
+					returnBuildings.append(building)
+		return returnBuildings
+
+	def RemoveBuilding(self,building):
+		self.buildings.remove(building)
+		for key in self.buildingsDict:
+			if (key == building.prefab):
+				self.buildingsDict[key].remove(building)
+				if (len(self.buildingsDict[key]) == 0):
+					del self.buildingsDict[key]
+				return
+
 class Building:
 	def __init__(self,prefab,tile):
 		self.prefab = prefab
@@ -178,9 +209,8 @@ class Building:
 	def SelfBitmasking(self):
 		self.Bitmasking()
 		for tile in self.tile.surroundingTiles:
-			if (tile != None):
-				if (tile.building != None):
-					tile.building.Bitmasking()
+			if (tile != None and tile.building != None):
+				tile.building.Bitmasking()
 
 	def Bitmasking(self):
 		if (len(self.prefab.sprites) > 1):
@@ -214,11 +244,11 @@ class Citizen:
 		from gm import CalculatePointDistance
 		closestJobBuilding = None
 		closestJobBuildingDistance = 0
-		for tile in tm.tiles:
-			if (tile.building != None and tile.building.prefab.group.groupName != "Residential" and tile.building.prefab.group.groupName != "Roads" and len(tile.building.population) < tile.building.prefab.maxPopulation):
-				distance = CalculatePointDistance(tile.position,self.homeBuilding.tile.position)
+		for building in buildings.buildings:
+			if (building.prefab.group.groupName != "Residential" and building.prefab.group.groupName != "Roads" and len(building.population) < building.prefab.maxPopulation):
+				distance = CalculatePointDistance(building.tile.position,self.homeBuilding.tile.position)
 				if (closestJobBuilding == None or distance < closestJobBuildingDistance):
-					closestJobBuilding = tile.building
+					closestJobBuilding = building
 					closestJobBuildingDistance = distance
 		if (closestJobBuilding != None):
 			self.jobBuilding = closestJobBuilding
@@ -255,12 +285,9 @@ def Awake():
 	buildingGroups = BuildingGroups()
 	global buildingPrefabs
 	buildingPrefabs = BuildingPrefabs()
+	global buildings
+	buildings = Buildings()
 	
 def Update():
-	global tm
-	from tiles import tm
-	for tile in tm.tiles:
-		if (tile.building != None):
-			tile.building.Update()
-	
-''' USER METHODS '''
+	for building in buildings.buildings:
+		building.Update()
