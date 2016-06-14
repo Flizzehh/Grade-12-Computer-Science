@@ -56,8 +56,14 @@ class BuildingPrefab:
 		self.SplitSprites()
 
 		self.moveSpeed = 1
+		self.waterAmount = 0
+		self.powerAmount = 0
 		if (self.group.groupName == "Roads"):
 			self.moveSpeed = float(lineData[6])
+		elif (self.group.groupName == "Water"):
+			self.waterAmount = int(lineData[6])
+		elif (self.group.groupName == "Power"):
+			self.powerAmount = int(lineData[6])
 		
 	def SplitSprites(self):
 		spriteSheetSize = self.spriteSheet.get_rect().size
@@ -103,6 +109,9 @@ class Buildings:
 
 	def AddBuilding(self,building):
 
+		from city import city
+		city.DistributeServices()
+
 		self.buildings.append(building)
 
 		foundPrefab = False
@@ -144,11 +153,25 @@ class Building:
 		self.income = 0
 		self.expense = 0
 
+		self.hasWater = 0
+		self.hasPower = 0
+
 		self.efficiency = 0
 		
 		self.populationTimer = 0
 		
 		self.sprite = self.prefab.sprites[0]
+
+		self.coveredBuildings = []
+
+		self.effectiveWaterAmount = 0
+		self.effectivePowerAmount = 0
+
+		self.policeCover = False
+		self.fireCover = False
+		self.healthCover = False
+		self.services = 0
+		self.averageHappiness = 0
 		
 		if (self.prefab.buildingType == "City Hall"):
 			from city import city
@@ -169,16 +192,39 @@ class Building:
 					
 					self.populationTimer = 0
 					if (random.randrange(0,100) < (city.resDemand * 100)):
-						self.population.append(Citizen(self))
+						self.population.append(Citizen(self))	
+						city.DistributeUtilities()
 					city.CalculateRCI()
 				
+			self.services = 0
+			if (self.policeCover):
+				self.services += 1 
+			if (self.fireCover):
+				self.services += 1
+			if (self.healthCover):
+				self.services += 1
+
 			self.employed = 0
+			self.hasWater = 0
+			self.hasPower = 0
+			self.averageHappiness = 0
 			for citizen in self.population:
+
+				citizen.happiness = 0
+
+				if (citizen.hasWater):
+					self.hasWater += 1
+					citizen.happiness += 1
+				if (citizen.hasPower):
+					self.hasPower += 1
+					citizen.happiness += 1
+
 				if (citizen.jobBuilding == None):
 					citizen.FindJob()
 				else:
 					self.employed += 1
-					
+					citizen.happiness += 1
+
 					if (citizen.positionTimer < 1):
 						citizen.positionTimer += citizen.speed * times.time.deltaTime * citizen.originPathTile.building.prefab.moveSpeed
 						citizen.position = ((citizen.targetPathTile.position[0]-citizen.originPathTile.position[0]) * citizen.positionTimer + citizen.originPathTile.position[0],(citizen.targetPathTile.position[1]-citizen.originPathTile.position[1]) * citizen.positionTimer + citizen.originPathTile.position[1])
@@ -194,12 +240,18 @@ class Building:
 						
 					from tiles import tm
 					pygame.draw.rect(tm.tileSurface, (255,255,255), (citizen.position[0]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,citizen.position[1]+tm.tileSize/2-tm.tileSize/citizen.size + citizen.size/2,round(tm.tileSize/citizen.size),round(tm.tileSize/citizen.size)))
+				
+				citizen.happiness += citizen.services
+				citizen.happiness /= 6
+				self.averageHappiness += citizen.happiness
+			if (len(self.population) > 0):
+				self.averageHappiness /= len(self.population)
 
 		elif (self.prefab.group.groupName == "Commercial"):
-			self.income = len(self.population) * city.comDemand * 0.01
+			self.income = len(self.population) * city.comDemand * 0.5
 
 		elif (self.prefab.group.groupName == "Industrial"):
-			self.income = len(self.population) * city.indDemand * 0.01
+			self.income = len(self.population) * city.indDemand * 0.5
 
 		self.expense = (len(self.population) * 0.1) + self.prefab.maintenanceBase
 
@@ -239,6 +291,12 @@ class Citizen:
 		
 		self.size = random.randrange(8,10)
 		self.speed = random.randrange(1,3) / 2
+
+		self.hasWater = False
+		self.hasPower = False
+
+		self.happiness = 0
+		self.services = 0
 		
 	def FindJob(self):
 		from gm import CalculatePointDistance

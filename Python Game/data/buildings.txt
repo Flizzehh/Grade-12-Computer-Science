@@ -20,23 +20,22 @@ Commercial
 	Upscale Store/800/30/0/15/60
 Industrial
 	Farm/50/5/0/5/1
-	Factory/150/10/0/50/-5
-	Manufactory/300/20/0/70/-15
+	Factory/300/50/0/50/-10
 	High-Tech/600/40/0/40/1
 Health
-	Clinic/500/30/0/20/3
-	Hospital/1500/90/0/150/8
+	Clinic/500/30/0/20/3/10
+	Hospital/1500/90/0/150/8/25
 Fire
-	Fire Station/300/15/0/40/3
+	Fire Station/300/15/0/40/3/25
 Police
-	Police Booth/150/10/0/10/2
-	Police Station/650/40/0/60/6
+	Police Booth/150/10/0/10/2/10
+	Police Station/650/40/0/60/6/25
 Water
-	Water Tower/50/5/0/2/-1
-	Water Pump/250/35/0/25/-3
+	Water Tower/50/5/0/2/-1/500
+	Water Pump/250/35/0/25/-3/5000
 Power
-	Coal Plant/300/15/0/40/-25
-	Gas Plant/500/25/0/60/-15
-	Wind Farm/100/5/0/5/-2
-	Solar Farm/150/5/0/3/-1
-	Nuclear Plant/2500/100/0/60/-10
+	Coal Plant/300/15/0/40/-25/5000
+	Gas Plant/500/25/0/60/-15/4000
+	Wind Farm/100/5/0/5/-2/1000
+	Solar Farm/150/5/0/3/-1/400
+	Nuclear Plant/2500/100/0/60/-10/1000000

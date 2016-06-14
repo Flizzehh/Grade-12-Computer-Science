@@ -71,7 +71,6 @@ class UI:
 		self.AddText(Text(dateTextPosition,cityPanelSize,"Date","verdana",14,(50,50,50)))
 		
 		from buildings import buildingGroups
-		print(len(buildingGroups.groups))
 		
 		buildingButtonNum = len(buildingGroups.groups)
 		buildingButtonSize = (100,35)
@@ -88,7 +87,7 @@ class UI:
 			buildingButtonTextPosition = (buildingButtonPosition[0]+5,buildingButtonPosition[1])
 			buttonText = Text(buildingButtonTextPosition,buildingButtonSize,group.groupName,"verdana",12,(200,200,200))
 			
-			button = Button(buildingButtonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100),group,None)
+			button = Button(buildingButtonPosition,buildingButtonSize,[buttonText],(50,50,50),(75,75,75),(100,100,100),group,None)
 			
 			self.AddButton(button)
 			
@@ -98,8 +97,10 @@ class UI:
 			for buildingIndex in range(len(group.buildings)):
 				building = group.buildings[buildingIndex]
 				buttonPosition = (buildingButtonPosition[0],buildingButtonPosition[1]-(buildingButtonSize[1]*(buildingIndex+1))-(buildingButtonSize[1]-15))
-				buttonText = Text(buttonPosition,buildingButtonSize,building.buildingType,"verdana",12,(200,200,200))
-				menuButtons.append(Button(buttonPosition,buildingButtonSize,buttonText,(50,50,50),(75,75,75),(100,100,100),None,building))
+				buttonCostString = "$" + str(building.cost) + " ($"+str(building.maintenanceBase)+")"
+				buttonNameText = Text((buttonPosition[0]+5,buttonPosition[1]),buildingButtonSize,building.buildingType,"verdana",12,(200,200,200))
+				buttonCostText = Text((buttonPosition[0]+5,buttonPosition[1]+15),buildingButtonSize,buttonCostString,"verdana",10,(200,50,50))
+				menuButtons.append(Button(buttonPosition,buildingButtonSize,[buttonNameText,buttonCostText],(50,50,50),(75,75,75),(100,100,100),None,building))
 			menu = Menu(group,menuPanel,menuButtons)
 			self.menus.append(menu)
 			button.menu = menu
@@ -114,19 +115,28 @@ class UI:
 		
 		if (self.mouseOverTile != None and self.mouseOverTile.building != None and self.mouseOverTile.building.prefab.group.groupName != "Roads"):
 			building = self.mouseOverTile.building
-			self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]),(255,255,255),5,(200,200,200)))
+			self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]+100),(255,255,255),5,(200,200,200)))
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,building.prefab.buildingType,"verdana",14,(50,50,50)))
 			if (building.prefab.group.groupName == "Residential"):
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+45),cityPanelSize,"Information","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Citizens","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+30),cityPanelSize,str(building.employed) + " Employed","verdana",12,(50,50,200)))
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+60),cityPanelSize,"$" + str(round(building.income)) + " Income","verdana",12,(50,200,50)))
-				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+75),cityPanelSize,"$" + str(round(building.expense)) + " Expense","verdana",12,(200,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+45),cityPanelSize,str(round(building.averageHappiness * 100)) + "% Happy","verdana",12,(255 * (1-building.averageHappiness),255 * building.averageHappiness,0)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+65),cityPanelSize,"Information","verdana",14,(50,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+80),cityPanelSize,"$" + str(round(building.income)) + " Income","verdana",12,(50,200,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+95),cityPanelSize,"$" + str(round(building.expense)) + " Expense","verdana",12,(200,50,50)))
+
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+110),cityPanelSize,str(building.hasWater) + " Have Water","verdana",12,(50,50,200)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+125),cityPanelSize,str(building.hasPower) + " Have Power","verdana",12,(200,200,50)))
 			elif (building.prefab.group.groupName != "Roads"):
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Employees","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+35),cityPanelSize,"Information","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+50),cityPanelSize,"$" + str(round(building.income)) + " Income","verdana",12,(50,200,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+65),cityPanelSize,"$" + str(round(building.expense)) + " Expense","verdana",12,(200,50,50)))
+				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+80),cityPanelSize,str(round(building.efficiency * 100)) + "% Efficiency","verdana",12,(50,50,50)))
+				if (building.prefab.group.groupName == "Water"):
+					self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+95),cityPanelSize,str(round(building.effectiveWaterAmount)) + "/" + str(building.prefab.waterAmount) + " Water","verdana",12,(50,50,200)))
+				elif (building.prefab.group.groupName == "Power"):
+					self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+95),cityPanelSize,str(round(building.effectivePowerAmount)) + "/" + str(building.prefab.powerAmount) + " Power","verdana",12,(200,200,50)))
 		else:
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,"Mouse over a building for more information.","verdana",10,(50,50,50)))
 			
@@ -260,13 +270,14 @@ class UI:
 		
 		if (button.disabled):
 			buttonColour = (button.normalColour[0]/2,button.normalColour[1]/2,button.normalColour[2]/2)
-			if ((ui.selectedGroup != None and ui.selectedGroup == button.group) or (ui.selectedBuilding != None and ui.selectedBuilding.buildingType == button.text.text)):
+			if ((ui.selectedGroup != None and ui.selectedGroup == button.group) or (ui.selectedBuilding != None and ui.selectedBuilding.buildingType == button.text[0].text)):
 				ui.selectedBuilding = None
 				ui.selectedGroup = None
 				
 		pygame.draw.rect(self.uiSurface,buttonColour,(button.position)+(button.size))
-		if (button.text != None):
-			self.uiSurface.blit(button.text.textObject,button.text.position)
+		if (len(button.text) > 0):
+			for text in button.text:
+				self.uiSurface.blit(text.textObject,text.position)
 			
 		if (self.MouseWithinBounds((button.position)+(button.size))):
 			self.mouseOverUI = True
