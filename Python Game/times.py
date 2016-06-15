@@ -5,15 +5,17 @@ class TimeManager:
 	def __init__(self):
 		self.deltaTime = 0
 		self.clock = pygame.time.Clock()
+		self.timeMulti = 1
 		
 		self.dayTimer = 0
 		self.day = 0
 		self.month = 0
 		self.year = 0
-	
+
 	def Update(self):
 	
 		self.deltaTime = self.clock.tick() / 1000
+		self.deltaTime *= self.timeMulti
 		
 		if (self.dayTimer < 1):
 			self.dayTimer += 1 * self.deltaTime

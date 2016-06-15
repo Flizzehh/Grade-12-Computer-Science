@@ -9,6 +9,7 @@ def Awake():
 	
 def Update():
 	SmoothCamera()
+	ChangeTimeSpeed()
 
 def GetInput(event):
 	if event.type == pygame.KEYDOWN:
@@ -47,3 +48,13 @@ def SmoothCamera():
 		camera.ChangePosition((cameraSpeed * time.deltaTime,0))
 	if (pressedKeys[pygame.K_d]):
 		camera.ChangePosition((-cameraSpeed * time.deltaTime,0))
+
+def ChangeTimeSpeed():
+	from times import time
+	pressedKeys = pygame.key.get_pressed()
+	if (pressedKeys[pygame.K_1]):
+		time.timeMulti = 1
+	if (pressedKeys[pygame.K_2]):
+		time.timeMulti = 2
+	if (pressedKeys[pygame.K_3]):
+		time.timeMulti = 3

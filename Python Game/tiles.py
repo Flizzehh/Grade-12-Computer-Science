@@ -65,6 +65,7 @@ class Tile:
 
 		from buildings import buildings
 		buildings.AddBuilding(building)
+		city.DistributeServices()
 		
 	def CalculateTilePosition(self):
 		self.position = (self.indexPos[0]*tm.tileSize+camera.position[0]*tm.tileSize,self.indexPos[1]*tm.tileSize+camera.position[1]*tm.tileSize,tm.tileSize,tm.tileSize)

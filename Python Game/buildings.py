@@ -64,6 +64,10 @@ class BuildingPrefab:
 			self.waterAmount = int(lineData[6])
 		elif (self.group.groupName == "Power"):
 			self.powerAmount = int(lineData[6])
+
+		self.range = 0
+		if (self.group.groupName == "Police" or self.group.groupName == "Fire" or self.group.groupName == "Health"):
+			self.range = int(lineData[6])
 		
 	def SplitSprites(self):
 		spriteSheetSize = self.spriteSheet.get_rect().size
@@ -110,7 +114,6 @@ class Buildings:
 	def AddBuilding(self,building):
 
 		from city import city
-		city.DistributeServices()
 
 		self.buildings.append(building)
 
@@ -189,7 +192,6 @@ class Building:
 				if (self.populationTimer < 10 * (1-city.resDemand)):
 					self.populationTimer += 1 * times.time.deltaTime
 				else:
-					
 					self.populationTimer = 0
 					if (random.randrange(0,100) < (city.resDemand * 100)):
 						self.population.append(Citizen(self))	
@@ -311,6 +313,8 @@ class Citizen:
 		if (closestJobBuilding != None):
 			self.jobBuilding = closestJobBuilding
 			self.jobBuilding.population.append(self)
+			from city import city
+			city.DistributeServices()
 			self.FindPathToWork()
 			
 	def FindPathToWork(self):

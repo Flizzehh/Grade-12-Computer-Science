@@ -158,21 +158,25 @@ class City:
 		from gm import CalculatePointDistance
 		from tiles import tm
 		for building in buildings.buildings:
-			for policeBuilding in policeBuildings:
-				if (CalculatePointDistance(building.tile.position,policeBuilding.tile.position) <= policeBuilding.prefab.range * tm.tileSize):
-					building.policeCover = True
-					policeBuilding.coveredBuildings.append(building)
-					break
-			for fireBuilding in fireBuildings:
-				if (CalculatePointDistance(building.tile.position,fireBuilding.tile.position) <= fireBuilding.prefab.range * tm.tileSize):
-					building.fireCover = True
-					fireBuilding.coveredBuildings.append(building)
-					break
-			for healthBuilding in healthBuildings:
-				if (CalculatePointDistance(building.tile.position,healthBuilding.tile.position) <= healthBuilding.prefab.range * tm.tileSize):
-					building.healthCover = True
-					healthBuilding.coveredBuildings.append(building)
-					break
+			if (building.prefab.group.groupName == "Residential"):
+				for policeBuilding in policeBuildings:
+					buildingRange = policeBuilding.prefab.range * policeBuilding.efficiency
+					if (CalculatePointDistance(building.tile.position,policeBuilding.tile.position) <= buildingRange * tm.tileSize):
+						building.policeCover = True
+						policeBuilding.coveredBuildings.append(building)
+						break
+				for fireBuilding in fireBuildings:
+					buildingRange = fireBuilding.prefab.range * fireBuilding.efficiency
+					if (CalculatePointDistance(building.tile.position,fireBuilding.tile.position) <= buildingRange * tm.tileSize):
+						building.fireCover = True
+						fireBuilding.coveredBuildings.append(building)
+						break
+				for healthBuilding in healthBuildings:
+					buildingRange = healthBuilding.prefab.range * healthBuilding.efficiency
+					if (CalculatePointDistance(building.tile.position,healthBuilding.tile.position) <= buildingRange * tm.tileSize):
+						building.healthCover = True
+						healthBuilding.coveredBuildings.append(building)
+						break
 
 def Awake():
 	global city

@@ -115,9 +115,10 @@ class UI:
 		
 		if (self.mouseOverTile != None and self.mouseOverTile.building != None and self.mouseOverTile.building.prefab.group.groupName != "Roads"):
 			building = self.mouseOverTile.building
-			self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]+100),(255,255,255),5,(200,200,200)))
+			
 			self.AddUpdateText(Text(buildingTextPosition,cityPanelSize,building.prefab.buildingType,"verdana",14,(50,50,50)))
 			if (building.prefab.group.groupName == "Residential"):
+				self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]+45),(255,255,255),5,(200,200,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Citizens","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+30),cityPanelSize,str(building.employed) + " Employed","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+45),cityPanelSize,str(round(building.averageHappiness * 100)) + "% Happy","verdana",12,(255 * (1-building.averageHappiness),255 * building.averageHappiness,0)))
@@ -128,6 +129,10 @@ class UI:
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+110),cityPanelSize,str(building.hasWater) + " Have Water","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+125),cityPanelSize,str(building.hasPower) + " Have Power","verdana",12,(200,200,50)))
 			elif (building.prefab.group.groupName != "Roads"):
+				if (building.prefab.group.groupName == "Power" or building.prefab.group.groupName == "Water"):
+					self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]+15),(255,255,255),5,(200,200,200)))
+				else:
+					self.AddUpdatePanel(Panel(buildingPanelPosition,(cityPanelSize[0]+25,cityPanelSize[1]),(255,255,255),5,(200,200,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+15),cityPanelSize,str(len(building.population)) + "/" + str(int(building.prefab.maxPopulation)) + " Employees","verdana",12,(50,50,200)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+35),cityPanelSize,"Information","verdana",14,(50,50,50)))
 				self.AddUpdateText(Text((buildingTextPosition[0],buildingTextPosition[1]+50),cityPanelSize,"$" + str(round(building.income)) + " Income","verdana",12,(50,200,50)))
